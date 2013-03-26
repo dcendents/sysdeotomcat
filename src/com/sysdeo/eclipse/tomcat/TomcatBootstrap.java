@@ -46,9 +46,9 @@ public abstract class TomcatBootstrap {
 
 	private static final String WEBAPP_CLASSPATH_FILENAME = ".#webclasspath";
 	private static final int RUN = 1;
-	private static final int LOG = 2;	
+	private static final int LOG = 2;
 	private static final int ADD_LAUNCH = 3;
-	
+
 	public abstract String[] getClasspath();
 	public abstract String[] getVmArgs();
 	public abstract String[] getPrgArgs(String command);
@@ -67,22 +67,22 @@ public abstract class TomcatBootstrap {
 	public Collection getTomcatJars() {
 		IPath tomcatHomePath = TomcatLauncherPlugin.getDefault().getTomcatIPath();
 		ArrayList jars = new ArrayList();
-		
+
 		if(this.getServletJarPath() != null) {
 			jars.add(JavaCore.newVariableEntry(tomcatHomePath.append(this.getServletJarPath()), null, null));
 		}
 
-		if(this.getJasperJarPath() != null)	{		
+		if(this.getJasperJarPath() != null)	{
 			jars.add(JavaCore.newVariableEntry(tomcatHomePath.append(this.getJasperJarPath()), null, null));
 		}
-				
-		if(this.getJSPJarPath() != null)	{		
+
+		if(this.getJSPJarPath() != null)	{
 			jars.add(JavaCore.newVariableEntry(tomcatHomePath.append(this.getJSPJarPath()), null, null));
 		}
-		
+
 		return jars;
 	}
-	
+
 	/**
 	 * Return the tag that will be used to find where context definition should be added in server.xml
 	 */
@@ -122,14 +122,14 @@ public abstract class TomcatBootstrap {
 	public void logConfig() throws CoreException {
 		this.runTomcatBootsrap(getStartCommand(), true, LOG, false);
 	}
-	
+
 	/**
 	 * Create an Eclipse launch configuration
 	 */
 	public void addLaunch() throws CoreException {
 		this.runTomcatBootsrap(getStartCommand(), true, ADD_LAUNCH, true);
 	}
-	
+
 	/**
 	 * Launch a new JVM running Tomcat Main class
 	 * Set classpath, bootclasspath and environment variable
@@ -145,19 +145,19 @@ public abstract class TomcatBootstrap {
 			TomcatProject tomcatProject = (TomcatProject) projects[i].getNature(TomcatLauncherPlugin.NATURE_ID);
 			if (tomcatProject != null) {
 				ArrayList al = new ArrayList();
-				ArrayList visitedProjects = new ArrayList(); /*IMC*/ 
+				ArrayList visitedProjects = new ArrayList(); /*IMC*/
 				IJavaProject javaProject = (IJavaProject) projects[i].getNature(JavaCore.NATURE_ID);
 				WebClassPathEntries entries = tomcatProject.getWebClassPathEntries();
 				if (entries != null) {
-					getClassPathEntries(javaProject, al, entries.getList(), visitedProjects);
+					getClassPathEntries(javaProject, al, false, entries.getList(), visitedProjects);
 
 					IFile file = null;
 				 	if(tomcatProject.getRootDirFolder() == null) {
 				 		file = projects[i].getFile(new Path(WEBAPP_CLASSPATH_FILENAME));
-				 	} else {	 		
+				 	} else {
 				 		file = tomcatProject.getRootDirFolder().getFile(new Path(WEBAPP_CLASSPATH_FILENAME));
 				 	}
-					
+
 					File cpFile = file.getLocation().makeAbsolute().toFile();
 					if (cpFile.exists()) {
 						cpFile.delete();
@@ -206,7 +206,7 @@ public abstract class TomcatBootstrap {
 		}
 		if(action == ADD_LAUNCH) {
 			VMLauncherUtility.createConfig(getLabel(), getMainClass(), classpath, bootClasspath, jvmArguments.toString(), programArguments.toString(), isDebugMode(), showInDebugger, true);
-		}		
+		}
 
 	}
 
@@ -225,47 +225,47 @@ public abstract class TomcatBootstrap {
 		add(data, con.getLocation());
 	}
 
-	private void getClassPathEntries(IJavaProject prj, ArrayList data, List selectedPaths, ArrayList visitedProjects) {
+	private void getClassPathEntries(IJavaProject prj, ArrayList data, boolean fromSelectedContainer, List selectedPaths, ArrayList visitedProjects) {
 		IClasspathEntry[] entries = null;
 
 		IPath outputPath = null;
 		try {
 			outputPath = prj.getOutputLocation();
-			if (selectedPaths.contains(outputPath.toFile().toString().replace('\\', '/'))) {
+			if (fromSelectedContainer || selectedPaths.contains(outputPath.toFile().toString().replace('\\', '/'))) {
 				add(data, prj.getProject().getWorkspace().getRoot().findMember(outputPath));
 			}
 			entries = prj.getRawClasspath();
 		} catch (JavaModelException e) {
 			TomcatLauncherPlugin.log(e);
 		}
-		
+
 		if (entries != null) {
 			getClassPathEntries(entries, prj, data, selectedPaths, visitedProjects, outputPath);
 		}
 	}
-	
-	private void getClassPathEntries(IClasspathEntry[] entries, IJavaProject prj, ArrayList data, List selectedPaths, ArrayList visitedProjects, IPath outputPath) {		
+
+	private void getClassPathEntries(IClasspathEntry[] entries, IJavaProject prj, ArrayList data, List selectedPaths, ArrayList visitedProjects, IPath outputPath) {
 		for (int i = 0; i < entries.length; i++) {
 			IClasspathEntry entry = entries[i];
 			IPath path = entry.getPath();
 			if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
 				path = entry.getOutputLocation();
 				if(path == null) continue;
-			}			
+			}
 			if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
 				String prjName = entry.getPath().lastSegment();
 				if(!visitedProjects.contains(prjName)) {
 					visitedProjects.add(prjName);
-					getClassPathEntries(prj.getJavaModel().getJavaProject(prjName), data, selectedPaths, visitedProjects);
+					getClassPathEntries(prj.getJavaModel().getJavaProject(prjName), data, false, selectedPaths, visitedProjects);
 				}
 				continue;
 			} else if (!selectedPaths.contains(path.toFile().toString().replace('\\', '/'))) {
 				if (entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER &&
-					!entry.getPath().toString().equals("org.eclipse.jdt.launching.JRE_CONTAINER")) {
+					!entry.getPath().toString().contains("org.eclipse.jdt.launching.JRE_CONTAINER")) {
 
 					// entires in container are only processed individually
 					// if container itself is not selected
-					
+
 					IClasspathContainer container;
 					try {
 						container = JavaCore.getClasspathContainer(path, prj);
@@ -273,11 +273,11 @@ public abstract class TomcatBootstrap {
 						TomcatLauncherPlugin.log(e1);
 						container = null;
 					}
-					
+
 					if (container != null) {
 						getClassPathEntries(
-							container.getClasspathEntries(), 
-							prj, data, 
+							container.getClasspathEntries(),
+							prj, data,
 							selectedPaths, visitedProjects,
 							outputPath);
 					}
@@ -311,11 +311,18 @@ public abstract class TomcatBootstrap {
 					{
 						add(data, prj.getProject().getWorkspace().getRoot().findMember(srcPath));
 					}
+				// Trying to fix code for m2eclipse container
+				} else if (entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER && tmpEntry[j].getEntryKind() == IClasspathEntry.CPE_PROJECT) {
+					String prjName = tmpEntry[j].getPath().lastSegment();
+					if(!visitedProjects.contains(prjName)) {
+						visitedProjects.add(prjName);
+						getClassPathEntries(prj.getJavaModel().getJavaProject(prjName), data, true, selectedPaths, visitedProjects);
+					}
 				} else {
 					TomcatLauncherPlugin.log(">>> " + tmpEntry[j]);
 					if(tmpEntry[j].getPath() != null)
 						add(data, tmpEntry[j].getPath());
-				} 			
+				}
 			}
 		}
 	}
