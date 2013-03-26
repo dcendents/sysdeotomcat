@@ -14,28 +14,21 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import com.sysdeo.eclipse.tomcat.editors.ProjectListElement;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.debug.core.model.ISourceLocator;
-import org.eclipse.debug.core.sourcelookup.ISourceContainer;
-import org.eclipse.debug.core.sourcelookup.ISourceLookupDirector;
-import org.eclipse.debug.core.sourcelookup.ISourcePathComputer;
-import org.eclipse.debug.core.sourcelookup.containers.DefaultSourceContainer;
+import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.launching.JavaSourceLookupDirector;
 import org.eclipse.jdt.launching.JavaRuntime;
-import org.eclipse.jdt.launching.sourcelookup.containers.JavaProjectSourceContainer;
-
-import com.sysdeo.eclipse.tomcat.editors.ProjectListElement;
 
 /**
  * Start and stop Tomcat
@@ -299,6 +292,15 @@ public abstract class TomcatBootstrap {
 			}
 
 			for (int j = 0; j < tmpEntry.length; j++) {
+                // Check maven scope if defined
+                boolean isRuntime = true;
+                for (IClasspathAttribute att : tmpEntry[j].getExtraAttributes()) {
+                    if ("maven.scope".equals(att.getName())) {
+                        isRuntime = "compile".equals(att.getValue()) || "runtime".equals(att.getValue());
+                        break;
+                    }
+                }
+
 				if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
 					IResource res = prj.getProject().getWorkspace().getRoot().findMember(tmpEntry[j].getPath());
 					if (res != null)
@@ -312,13 +314,14 @@ public abstract class TomcatBootstrap {
 						add(data, prj.getProject().getWorkspace().getRoot().findMember(srcPath));
 					}
 				// Trying to fix code for m2eclipse container
-				} else if (entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER && tmpEntry[j].getEntryKind() == IClasspathEntry.CPE_PROJECT) {
+                }
+                else if (isRuntime && entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER
+                        && tmpEntry[j].getEntryKind() == IClasspathEntry.CPE_PROJECT) {
 					String prjName = tmpEntry[j].getPath().lastSegment();
-					if(!visitedProjects.contains(prjName)) {
-						visitedProjects.add(prjName);
-						getClassPathEntries(prj.getJavaModel().getJavaProject(prjName), data, true, selectedPaths, visitedProjects);
-					}
-				} else {
+                    visitedProjects.add(prjName);
+                    getClassPathEntries(prj.getJavaModel().getJavaProject(prjName), data, true, selectedPaths, visitedProjects);
+                }
+                else if (isRuntime) {
 					TomcatLauncherPlugin.log(">>> " + tmpEntry[j]);
 					if(tmpEntry[j].getPath() != null)
 						add(data, tmpEntry[j].getPath());

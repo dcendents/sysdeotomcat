@@ -2,7 +2,7 @@
 <plugin
    id="com.sysdeo.eclipse.tomcat"
    name="Tomcat Plugin"
-   version="3.3.0.1"
+   version="3.3.0.2"
    provider-name="EclipseTotale.com"
    class="com.sysdeo.eclipse.tomcat.TomcatLauncherPlugin">
 

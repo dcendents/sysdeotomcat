@@ -9,7 +9,7 @@
 
 	<target name="init" depends="properties">
 		<property name="plugin" value="com.sysdeo.eclipse.tomcat"/>
-		<property name="version.suffix" value="_3.3.0.1"/>
+		<property name="version.suffix" value="_3.3.0.2"/>
 		<property name="full.name" value="${plugin}${version.suffix}"/>
 		<property name="temp.folder" value="${build.workdir}/temp.folder"/>
 		<property name="plugin.destination" value="${build.workdir}"/>
