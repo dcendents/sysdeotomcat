@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="com.sysdeo.eclipse.tomcat" default="zip.plugin" basedir=".">
+
+	<property name="bootclasspath" value=""/>
+	<property name="ws" value="win32"/>
+	<property name="os" value="win32"/>
+	<property name="arch" value="x86"/>
+	<property name="build.workdir" value="export"/>
+
+	<target name="init" depends="properties">
+		<property name="plugin" value="com.sysdeo.eclipse.tomcat"/>
+		<property name="version.suffix" value="_3.3.0"/>
+		<property name="full.name" value="${plugin}${version.suffix}"/>
+		<property name="temp.folder" value="${build.workdir}/temp.folder"/>
+		<property name="plugin.destination" value="${build.workdir}"/>
+		<property name="build.result.folder" value="${build.workdir}"/>
+	</target>
+
+	<target name="properties" if="eclipse.running">
+		<property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+	</target>
+
+	<target name="build.update.jar" depends="init">
+		<delete dir="${temp.folder}"/>
+		<mkdir dir="${temp.folder}"/>
+		<antcall target="build.jars"/>
+		<antcall target="gather.bin.parts">
+			<param name="destination.temp.folder" value="${temp.folder}/"/>
+		</antcall>
+		<zip zipfile="${plugin.destination}/${full.name}.jar" basedir="${temp.folder}/${full.name}" filesonly="false" update="no"/>
+		<delete dir="${temp.folder}"/>
+	</target>
+
+	<target name="gather.bin.parts" depends="init" if="destination.temp.folder">
+		<mkdir dir="${destination.temp.folder}/${full.name}"/>
+		<copy file="${build.result.folder}/tomcat.jar" todir="${destination.temp.folder}/${full.name}"/>
+		<copy todir="${destination.temp.folder}/${full.name}">
+			<fileset dir="${basedir}" includes="plugin.xml,*.jar,DevLoader.zip,*.txt,*.html,icons/*,img/*,plugin*.properties"/>
+		</copy>
+	</target>
+
+	<target name="tomcat.jar" depends="init" unless="tomcat.jar">
+		<property name="destdir" value="${temp.folder}/tomcat.jar.bin"/>
+		<delete dir="${temp.folder}/tomcat.jar.bin"/>
+		<mkdir dir="${temp.folder}/tomcat.jar.bin"/>
+		<!-- compile the source code
+		<javac destdir="${temp.folder}/tomcat.jar.bin" failonerror="false" verbose="true" debug="on" includeAntRuntime="no" bootclasspath="${bootclasspath}" classpath="D:/java/eclipse/plugins/org.eclipse.jdt.ui_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.core.boot_2.1.0/boot.jar;D:/java/eclipse/plugins/org.eclipse.swt.win32_2.1.0/ws/${ws}/swt.jar;D:/java/eclipse/plugins/org.eclipse.core.resources.win32_2.1.0/resources.jar;D:/java/eclipse/plugins/org.eclipse.jface.text_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.core.resources_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.jface_2.1.0/jface.jar;D:/java/eclipse/plugins/org.eclipse.jface.text_2.1.0/jfacetext.jar;D:/java/eclipse/plugins/org.eclipse.ui.workbench.texteditor_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.jface_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.jdt.launching_2.1.0/launching.jar;D:/java/eclipse/plugins/org.eclipse.jdt.debug.ui_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.debug.ui_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.ui.editors_2.1.0/editors.jar;D:/java/eclipse/plugins/org.eclipse.ui.workbench.texteditor_2.1.0/texteditor.jar;D:/java/eclipse/plugins/org.eclipse.jdt.debug_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.ui.views_2.1.0/views.jar;D:/java/eclipse/plugins/org.eclipse.ui.win32_2.1.0/workbench.jar;D:/java/eclipse/plugins/org.eclipse.ui_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.core.boot_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.jdt.debug.ui_2.1.0/jdiui.jar;D:/java/eclipse/plugins/org.eclipse.core.runtime_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.jdt.core_2.1.0/jdtcore.jar;D:/java/eclipse/plugins/org.eclipse.jdt.core_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.core.runtime_2.1.0/runtime.jar;D:/java/eclipse/plugins/org.eclipse.text_2.1.0/text.jar;D:/java/eclipse/plugins/org.eclipse.jdt.debug_2.1.0/jdi.jar;D:/java/eclipse/plugins/org.eclipse.debug.core_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.ui_2.1.0/ui.jar;D:/java/eclipse/plugins/org.eclipse.core.resources_2.1.0/resources.jar;D:/java/eclipse/plugins/org.eclipse.swt_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.swt_2.1.0/ws/${ws}/swt.jar;D:/java/eclipse/plugins/org.eclipse.text_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.jdt.debug_2.1.0/jdimodel.jar;D:/java/eclipse/plugins/org.eclipse.jdt.debug_2.1.0/tools.jar;D:/java/eclipse/plugins/org.eclipse.ui.editors_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.ui.views_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.debug.ui_2.1.0/dtui.jar;D:/java/eclipse/plugins/org.eclipse.jdt.launching_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.ui.workbench_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.debug.core_2.1.0/dtcore.jar;D:/java/eclipse/plugins/org.eclipse.ui.workbench_2.1.0/workbench.jar;D:/java/eclipse/plugins/org.eclipse.jdt.ui_2.1.0/jdt.jar;D:/java/eclipse/plugins/org.eclipse.ui.win32_2.1.0/workbenchwin32.jar">
+			<src path="src/"/>
+		</javac>
+		-->
+		<!-- copy necessary resources -->
+		<copy todir="${temp.folder}/tomcat.jar.bin">
+			<fileset dir="bin/" includes="**/*"/>
+		</copy>
+		<mkdir dir="${build.result.folder}"/>
+		<jar jarfile="${build.result.folder}/tomcat.jar" basedir="${temp.folder}/tomcat.jar.bin"/>
+		<delete dir="${temp.folder}/tomcat.jar.bin"/>
+	</target>
+
+	<target name="tomcatsrc.zip" depends="init" unless="tomcatsrc.zip">
+		<mkdir dir="${build.result.folder}"/>
+		<zip zipfile="${build.result.folder}/tomcatsrc.zip" filesonly="false" update="no">
+<!--			<fileset dir="src/" includes="**/*.java"/>
+-->
+			<fileset dir="${basedir}" excludes="**/bin/**/*.*,**/CVS"/>
+		</zip>
+	</target>
+
+	<target name="build.jars" depends="init">
+		<available property="tomcat.jar" file="${build.result.folder}/tomcat.jar"/>
+		<antcall target="tomcat.jar"/>
+	</target>
+
+	<target name="build.sources" depends="init">
+		<available property="tomcatsrc.zip" file="${build.result.folder}/tomcatsrc.zip"/>
+		<antcall target="tomcatsrc.zip"/>
+	</target>
+
+		<target name="build.zips" depends="init">
+		</target>
+
+	<target name="gather.sources" depends="init" if="destination.temp.folder">
+		<mkdir dir="${destination.temp.folder}/${full.name}"/>
+		<copy file="${build.result.folder}/tomcatsrc.zip" todir="${destination.temp.folder}/${full.name}"/>
+	</target>
+
+	<target name="gather.logs" depends="init" if="destination.temp.folder">
+		<mkdir dir="${destination.temp.folder}/${full.name}"/>
+		<copy file="${temp.folder}/tomcat.jar.bin.log" todir="${destination.temp.folder}/${full.name}"/>
+	</target>
+
+	<target name="clean" depends="init">
+		<delete file="${build.result.folder}/tomcat.jar"/>
+		<delete file="${build.result.folder}/tomcatsrc.zip"/>
+		<delete file="${plugin.destination}/${full.name}.jar"/>
+		<delete file="${plugin.destination}/${full.name}.zip"/>
+		<delete dir="${temp.folder}"/>
+	</target>
+
+	<target name="refresh" depends="init" if="eclipse.running">
+		<eclipse.refreshLocal resource="${plugin}" depth="infinite"/>
+	</target>
+
+	<target name="zip.plugin" depends="init">
+		<delete dir="${temp.folder}"/>
+		<delete file="${build.result.folder}/tomcat.jar"/>
+		<delete file="${build.result.folder}/tomcatsrc.zip"/>
+		<mkdir dir="${temp.folder}"/>
+		<antcall target="build.sources"/>		
+		<antcall target="build.jars"/>
+		<antcall target="gather.bin.parts">
+			<param name="destination.temp.folder" value="${temp.folder}/"/>
+		</antcall>
+		<antcall target="gather.sources">
+			<param name="destination.temp.folder" value="${temp.folder}/"/>
+		</antcall>
+		<delete>
+			<fileset dir="${temp.folder}" includes="**/*.bin.log"/>
+		</delete>
+		<antcall target="zip.folder"/>
+		<delete dir="${temp.folder}"/>		
+	</target>
+	<target name="zip.folder" depends="init">
+		<zip zipfile="${plugin.destination}/${full.name}.zip" basedir="${temp.folder}" filesonly="true" update="no" excludes="**/*.bin.log"/>
+	</target>
+
+</project>

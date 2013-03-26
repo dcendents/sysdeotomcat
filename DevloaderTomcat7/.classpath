@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="lib" path="/home/bruno/Produits/apache-tomcat-7.0.6/lib/annotations-api.jar"/>
+	<classpathentry kind="lib" path="/home/bruno/Produits/apache-tomcat-7.0.6/lib/catalina.jar" sourcepath="/home/bruno/Disks/Produits/Tomcat/apache-tomcat-7.0.6-src/java"/>
+	<classpathentry kind="lib" path="/home/bruno/Produits/apache-tomcat-7.0.6/lib/catalina-ant.jar"/>
+	<classpathentry kind="lib" path="/home/bruno/Produits/apache-tomcat-7.0.6/lib/catalina-ha.jar"/>
+	<classpathentry kind="lib" path="/home/bruno/Produits/apache-tomcat-7.0.6/lib/catalina-tribes.jar"/>
+	<classpathentry kind="lib" path="/home/bruno/Produits/apache-tomcat-7.0.6/lib/ecj-3.6.jar"/>
+	<classpathentry kind="lib" path="/home/bruno/Produits/apache-tomcat-7.0.6/lib/el-api.jar"/>
+	<classpathentry kind="lib" path="/home/bruno/Produits/apache-tomcat-7.0.6/lib/jasper.jar"/>
+	<classpathentry kind="lib" path="/home/bruno/Produits/apache-tomcat-7.0.6/lib/jasper-el.jar"/>
+	<classpathentry kind="lib" path="/home/bruno/Produits/apache-tomcat-7.0.6/lib/jsp-api.jar"/>
+	<classpathentry kind="lib" path="/home/bruno/Produits/apache-tomcat-7.0.6/lib/servlet-api.jar"/>
+	<classpathentry kind="lib" path="/home/bruno/Produits/apache-tomcat-7.0.6/lib/tomcat-api.jar"/>
+	<classpathentry kind="lib" path="/home/bruno/Produits/apache-tomcat-7.0.6/lib/tomcat-coyote.jar"/>
+	<classpathentry kind="lib" path="/home/bruno/Produits/apache-tomcat-7.0.6/lib/tomcat-dbcp.jar"/>
+	<classpathentry kind="lib" path="/home/bruno/Produits/apache-tomcat-7.0.6/lib/tomcat-i18n-es.jar"/>
+	<classpathentry kind="lib" path="/home/bruno/Produits/apache-tomcat-7.0.6/lib/tomcat-i18n-fr.jar"/>
+	<classpathentry kind="lib" path="/home/bruno/Produits/apache-tomcat-7.0.6/lib/tomcat-i18n-ja.jar"/>
+	<classpathentry kind="lib" path="/home/bruno/Produits/apache-tomcat-7.0.6/lib/tomcat-util.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
