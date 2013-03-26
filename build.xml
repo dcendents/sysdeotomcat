@@ -1,74 +1,275 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="com.sysdeo.eclipse.tomcat" default="zip.plugin" basedir=".">
+<project name="com.sysdeo.eclipse.tomcat" default="build.jars" basedir=".">
 
-	<property name="bootclasspath" value=""/>
-	<property name="ws" value="win32"/>
-	<property name="os" value="win32"/>
-	<property name="arch" value="x86"/>
-	<property name="build.workdir" value="export"/>
+	<property name="p2.build.repo" value="file:${buildDirectory}/buildRepo"/>
+	<property name="basews" value="${ws}"/>
+	<property name="baseos" value="${os}"/>
+	<property name="basearch" value="${arch}"/>
+	<property name="basenl" value="${nl}"/>
+	<property name="bundleId" value="com.sysdeo.eclipse.tomcat"/>
+	<property name="bundleVersion" value="3.3.0.4"/>
+	<property name="p2.publishonerror" value="false"/>
+
+	<!-- Compiler settings. -->
+	<property name="javacFailOnError" value="false"/>
+	<property name="javacDebugInfo" value="on"/>
+	<property name="javacVerbose" value="false"/>
+	<property name="logExtension" value=".log"/>
+	<property name="compilerArg" value=""/>
+	<property name="compilation.prereq.log" value="${buildDirectory}/prereqErrors.log"/>
+	<property name="javacSource" value="1.3"/>
+	<property name="javacTarget" value="1.2"/>
+	<condition property="dir_bootclasspath" value="${java.home}/../Classes">
+		<os family="mac"/>
+	</condition>
+	<property name="dir_bootclasspath" value="${java.home}/lib"/>
+	<path id="path_bootclasspath">
+		<fileset dir="${dir_bootclasspath}">
+			<include name="*.jar"/>
+		</fileset>
+	</path>
+	<property name="bootclasspath" refid="path_bootclasspath"/>
+	<property name="bundleJavacSource" value="${javacSource}"/>
+	<property name="bundleJavacTarget" value="${javacTarget}"/>
+	<property name="bundleBootClasspath" value="${bootclasspath}"/>
 
 	<target name="init" depends="properties">
-		<property name="plugin" value="com.sysdeo.eclipse.tomcat"/>
-		<property name="version.suffix" value="_3.3.0.3"/>
-		<property name="full.name" value="${plugin}${version.suffix}"/>
-		<property name="temp.folder" value="${build.workdir}/temp.folder"/>
-		<property name="plugin.destination" value="${build.workdir}"/>
-		<property name="build.result.folder" value="${build.workdir}"/>
+		<condition property="pluginTemp" value="${buildTempFolder}/plugins"		>
+			<isset property="buildTempFolder"/>
+		</condition>
+		<property name="pluginTemp" value="${basedir}"/>
+		<condition property="build.result.folder" value="${pluginTemp}/com.sysdeo.eclipse.tomcat_3.3.0.4"		>
+			<isset property="buildTempFolder"/>
+		</condition>
+		<property name="build.result.folder" value="${basedir}"/>
+		<property name="temp.folder" value="${basedir}/temp.folder"/>
+		<property name="plugin.destination" value="${basedir}"/>
+		<condition property="p2.publish.parts" value="true"		>
+			<istrue value="${p2.gathering}"/>
+		</condition>
+		<property name="compilation.problem.marker" value="${build.result.folder}/compilation.problem"/>
+		<condition property="compilation.problem.marker.exists" value="true"		>
+			<and>
+			<available file="${compilation.problem.marker}"/>
+			<isfalse value="${p2.publishonerror}"/>
+			</and>
+		</condition>
 	</target>
 
 	<target name="properties" if="eclipse.running">
 		<property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+
 	</target>
 
-	<target name="build.update.jar" depends="init">
+	<target name="build.update.jar" depends="init" description="Build the plug-in: com.sysdeo.eclipse.tomcat for an update site.">
 		<delete dir="${temp.folder}"/>
 		<mkdir dir="${temp.folder}"/>
 		<antcall target="build.jars"/>
 		<antcall target="gather.bin.parts">
 			<param name="destination.temp.folder" value="${temp.folder}/"/>
 		</antcall>
-		<zip zipfile="${plugin.destination}/${full.name}.jar" basedir="${temp.folder}/${full.name}" filesonly="false" update="no"/>
+		<jar destfile="${plugin.destination}/com.sysdeo.eclipse.tomcat_3.3.0.4.jar" basedir="${temp.folder}/com.sysdeo.eclipse.tomcat_3.3.0.4" filesetmanifest="merge"/>
 		<delete dir="${temp.folder}"/>
 	</target>
 
-	<target name="gather.bin.parts" depends="init" if="destination.temp.folder">
-		<mkdir dir="${destination.temp.folder}/${full.name}"/>
-		<copy file="${build.result.folder}/tomcat.jar" todir="${destination.temp.folder}/${full.name}"/>
-		<copy todir="${destination.temp.folder}/${full.name}">
-			<fileset dir="${basedir}" includes="plugin.xml,*.jar,DevLoader.zip,*.txt,*.html,icons/*,img/*,plugin*.properties"/>
-		</copy>
+	<target name="tomcat.jar.nestedJars">
+		<mkdir dir="${buildDirectory}/nestedJars/org.eclipse.equinox.registry_3.5.200.v20120522-1841"/>
+		<unzip src="../../../plugins/org.eclipse.equinox.registry_3.5.200.v20120522-1841.jar" dest="${buildDirectory}/nestedJars/org.eclipse.equinox.registry_3.5.200.v20120522-1841" overwrite="false">
+			<patternset includes="runtime_registry_compatibility.jar"/>
+		</unzip>
+		<mkdir dir="${buildDirectory}/nestedJars/org.eclipse.ui.workbench_3.104.0.v20121219-151754"/>
+		<unzip src="../../../plugins/org.eclipse.ui.workbench_3.104.0.v20121219-151754.jar" dest="${buildDirectory}/nestedJars/org.eclipse.ui.workbench_3.104.0.v20121219-151754" overwrite="false">
+			<patternset includes="e4-workbench.jar"/>
+		</unzip>
+		<mkdir dir="${buildDirectory}/nestedJars/org.eclipse.ui.workbench_3.104.0.v20121219-151754"/>
+		<unzip src="../../../plugins/org.eclipse.ui.workbench_3.104.0.v20121219-151754.jar" dest="${buildDirectory}/nestedJars/org.eclipse.ui.workbench_3.104.0.v20121219-151754" overwrite="false">
+			<patternset includes="compatibility.jar"/>
+		</unzip>
+		<mkdir dir="${buildDirectory}/nestedJars/com.ibm.icu_4.4.2.v20110823"/>
+		<unzip src="../../../plugins/com.ibm.icu_4.4.2.v20110823.jar" dest="${buildDirectory}/nestedJars/com.ibm.icu_4.4.2.v20110823" overwrite="false">
+			<patternset includes="icu-data.jar"/>
+		</unzip>
+		<mkdir dir="${buildDirectory}/nestedJars/org.eclipse.e4.core.services_1.0.0.v20120521-2346"/>
+		<unzip src="../../../plugins/org.eclipse.e4.core.services_1.0.0.v20120521-2346.jar" dest="${buildDirectory}/nestedJars/org.eclipse.e4.core.services_1.0.0.v20120521-2346" overwrite="false">
+			<patternset includes="injection_annotations.jar"/>
+		</unzip>
+		<mkdir dir="${buildDirectory}/nestedJars/org.eclipse.ui.ide_3.8.1.v20120828-165804"/>
+		<unzip src="../../../plugins/org.eclipse.ui.ide_3.8.1.v20120828-165804.jar" dest="${buildDirectory}/nestedJars/org.eclipse.ui.ide_3.8.1.v20120828-165804" overwrite="false">
+			<patternset includes="e4-ide.jar"/>
+		</unzip>
+		<mkdir dir="${buildDirectory}/nestedJars/org.eclipse.ui.win32_3.2.300.v20120820-200440"/>
+		<unzip src="../../../plugins/org.eclipse.ui.win32_3.2.300.v20120820-200440.jar" dest="${buildDirectory}/nestedJars/org.eclipse.ui.win32_3.2.300.v20120820-200440" overwrite="false">
+			<patternset includes="e4-ide.jar"/>
+		</unzip>
 	</target>
-
-	<target name="tomcat.jar" depends="init" unless="tomcat.jar">
-		<property name="destdir" value="${temp.folder}/tomcat.jar.bin"/>
+	<target name="tomcat.jar" depends="init,tomcat.jar.nestedJars" unless="tomcat.jar" description="Create jar: com.sysdeo.eclipse.tomcat tomcat.jar.">
 		<delete dir="${temp.folder}/tomcat.jar.bin"/>
 		<mkdir dir="${temp.folder}/tomcat.jar.bin"/>
-		<!-- compile the source code
-		<javac destdir="${temp.folder}/tomcat.jar.bin" failonerror="false" verbose="true" debug="on" includeAntRuntime="no" bootclasspath="${bootclasspath}" classpath="D:/java/eclipse/plugins/org.eclipse.jdt.ui_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.core.boot_2.1.0/boot.jar;D:/java/eclipse/plugins/org.eclipse.swt.win32_2.1.0/ws/${ws}/swt.jar;D:/java/eclipse/plugins/org.eclipse.core.resources.win32_2.1.0/resources.jar;D:/java/eclipse/plugins/org.eclipse.jface.text_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.core.resources_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.jface_2.1.0/jface.jar;D:/java/eclipse/plugins/org.eclipse.jface.text_2.1.0/jfacetext.jar;D:/java/eclipse/plugins/org.eclipse.ui.workbench.texteditor_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.jface_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.jdt.launching_2.1.0/launching.jar;D:/java/eclipse/plugins/org.eclipse.jdt.debug.ui_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.debug.ui_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.ui.editors_2.1.0/editors.jar;D:/java/eclipse/plugins/org.eclipse.ui.workbench.texteditor_2.1.0/texteditor.jar;D:/java/eclipse/plugins/org.eclipse.jdt.debug_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.ui.views_2.1.0/views.jar;D:/java/eclipse/plugins/org.eclipse.ui.win32_2.1.0/workbench.jar;D:/java/eclipse/plugins/org.eclipse.ui_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.core.boot_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.jdt.debug.ui_2.1.0/jdiui.jar;D:/java/eclipse/plugins/org.eclipse.core.runtime_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.jdt.core_2.1.0/jdtcore.jar;D:/java/eclipse/plugins/org.eclipse.jdt.core_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.core.runtime_2.1.0/runtime.jar;D:/java/eclipse/plugins/org.eclipse.text_2.1.0/text.jar;D:/java/eclipse/plugins/org.eclipse.jdt.debug_2.1.0/jdi.jar;D:/java/eclipse/plugins/org.eclipse.debug.core_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.ui_2.1.0/ui.jar;D:/java/eclipse/plugins/org.eclipse.core.resources_2.1.0/resources.jar;D:/java/eclipse/plugins/org.eclipse.swt_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.swt_2.1.0/ws/${ws}/swt.jar;D:/java/eclipse/plugins/org.eclipse.text_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.jdt.debug_2.1.0/jdimodel.jar;D:/java/eclipse/plugins/org.eclipse.jdt.debug_2.1.0/tools.jar;D:/java/eclipse/plugins/org.eclipse.ui.editors_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.ui.views_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.debug.ui_2.1.0/dtui.jar;D:/java/eclipse/plugins/org.eclipse.jdt.launching_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.ui.workbench_2.1.0/bin;D:/java/eclipse/plugins/org.eclipse.debug.core_2.1.0/dtcore.jar;D:/java/eclipse/plugins/org.eclipse.ui.workbench_2.1.0/workbench.jar;D:/java/eclipse/plugins/org.eclipse.jdt.ui_2.1.0/jdt.jar;D:/java/eclipse/plugins/org.eclipse.ui.win32_2.1.0/workbenchwin32.jar">
-			<src path="src/"/>
+		<path id="tomcat.jar.classpath">
+			<pathelement path="../../../plugins/org.eclipse.core.resources_3.8.1.v20120802-154922.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.ant.core_3.2.400.v20120523-1752.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.core.variables_3.2.600.v20120521-2012.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.core.runtime_3.8.0.v20120521-2346.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.osgi_3.8.1.v20120830-144521.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.equinox.common_3.6.100.v20120522-1841.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.core.jobs_3.5.300.v20120622-204750.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.core.runtime.compatibility.registry_3.5.100.v20120521-2346/runtime_registry_compatibility.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.core.runtime.compatibility.registry_3.5.100.v20120521-2346"/>
+			<pathelement path="${buildDirectory}/nestedJars/org.eclipse.equinox.registry_3.5.200.v20120522-1841/runtime_registry_compatibility.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.equinox.registry_3.5.200.v20120522-1841.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.equinox.preferences_3.5.0.v20120522-1841.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.core.contenttype_3.4.200.v20120523-2004.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.core.runtime.compatibility.auth_3.2.300.v20120523-2004.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.equinox.app_1.3.100.v20120522-1841.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.osgi.services_3.3.100.v20120522-1822.jar"/>
+			<pathelement path="../../../plugins/javax.servlet_3.0.0.v201112011016.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.core.expressions_3.4.401.v20120627-124442.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.core.filesystem_1.3.200.v20120522-2012.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.core.filesystem.win32.x86_64_1.1.300.v20120522-1137.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.ui_3.103.0.v20120705-114351.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.swt_3.100.1.v4235f.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.swt.win32.win32.x86_64_3.100.1.v4235f.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.jface_3.8.101.v20121026-132746.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.core.commands_3.6.1.v20120814-150512.jar"/>
+			<pathelement path="${buildDirectory}/nestedJars/org.eclipse.ui.workbench_3.104.0.v20121219-151754/e4-workbench.jar"/>
+			<pathelement path="${buildDirectory}/nestedJars/org.eclipse.ui.workbench_3.104.0.v20121219-151754/compatibility.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.ui.workbench_3.104.0.v20121219-151754.jar"/>
+			<pathelement path="${buildDirectory}/nestedJars/com.ibm.icu_4.4.2.v20110823/icu-data.jar"/>
+			<pathelement path="../../../plugins/com.ibm.icu_4.4.2.v20110823.jar"/>
+			<pathelement path="../../../plugins/javax.annotation_1.0.0.v20101115-0725.jar"/>
+			<pathelement path="../../../plugins/javax.inject_1.0.0.v20091030.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.e4.core.commands_0.10.1.v20120523-1955.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.e4.core.contexts_1.2.0.v20121024-182359.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.e4.core.di_1.2.0.v20121024-173149.jar"/>
+			<pathelement path="${buildDirectory}/nestedJars/org.eclipse.e4.core.services_1.0.0.v20120521-2346/injection_annotations.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.e4.core.services_1.0.0.v20120521-2346.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.e4.ui.workbench_0.10.3.v20121207-204447.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.e4.ui.model.workbench_0.10.1.v20120523-1955.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.emf.ecore_2.8.1.v20120911-0500.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.emf.common_2.8.0.v20120911-0500.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.emf.ecore.xmi_2.8.0.v20120911-0500.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.e4.ui.services_0.10.2.v20121129-151235.jar"/>
+			<pathelement path="../../../plugins/javax.xml_1.3.4.v201005080400.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.e4.ui.di_0.10.1.v20120523-1955.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.e4.core.di.extensions_0.11.100.v20121024-182359.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.emf.ecore.change_2.8.0.v20120911-0500.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.e4.ui.workbench.renderers.swt_0.10.3.v20121206-163705.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.e4.ui.workbench.swt_0.10.2.v20121207-204447.jar"/>
+			<pathelement path="../../../plugins/org.apache.batik.css_1.6.0.v201011041432.jar"/>
+			<pathelement path="../../../plugins/org.apache.batik.util_1.6.0.v201011041432.jar"/>
+			<pathelement path="../../../plugins/org.apache.batik.util.gui_1.6.0.v201011041432.jar"/>
+			<pathelement path="../../../plugins/org.w3c.css.sac_1.3.1.v200903091627.jar"/>
+			<pathelement path="../../../plugins/org.w3c.dom.svg_1.1.0.v201011041433.jar"/>
+			<pathelement path="../../../plugins/org.w3c.dom.smil_1.0.0.v200806040011.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.core.databinding_1.4.1.v20120521-2329.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.core.databinding.observable_1.4.1.v20120521-2329.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.core.databinding.property_1.4.100.v20120523-1955.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.jface.databinding_1.6.0.v20120521-2329.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.e4.ui.css.core_0.10.2.v20120806-171245.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.e4.ui.css.swt_0.10.2.v20120821-165957.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.e4.ui.bindings_0.10.2.v20121107-162442.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.e4.ui.workbench3_0.12.0.v20120521-2329.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.e4.ui.css.swt.theme_0.9.3.v20120806-170624.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.e4.ui.widgets_0.12.0.v20120905-175524.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.equinox.ds_1.4.0.v20120522-1841.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.equinox.util_1.0.400.v20120522-2049.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.equinox.event_1.2.200.v20120522-2049.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.help_3.6.0.v20120521-2344.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.e4.ui.workbench.addons.swt_0.10.2.v20121204-133635.jar"/>
+			<pathelement path="${buildDirectory}/nestedJars/org.eclipse.ui.ide_3.8.1.v20120828-165804/e4-ide.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.ui.ide_3.8.1.v20120828-165804.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.ui.win32_3.2.300.v20120820-200440.jar"/>
+			<pathelement path="${buildDirectory}/nestedJars/org.eclipse.ui.win32_3.2.300.v20120820-200440/e4-ide.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.ui.views_3.6.100.v20120705-114010.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.jface.text_3.8.1.v20120828-155502.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.text_3.5.200.v20120523-1310.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.ui.forms_3.5.200.v20120705-114351.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.equinox.p2.engine_2.2.0.v20120501-1502.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.equinox.p2.core_2.2.0.v20120430-0525.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.equinox.p2.metadata_2.1.0.v20120430-2001.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.equinox.p2.metadata.repository_1.2.100.v20120524-1717.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.equinox.p2.repository_2.2.0.v20120524-1945.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.equinox.security_1.1.100.v20120522-1841.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.equinox.security.win32.x86_64_1.0.100.v20120522-2049.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.ui.editors_3.8.0.v20120523-1540.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.ui.workbench.texteditor_3.8.0.v20120523-1310.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.compare.core_3.5.200.v20120522-1148.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.core.filebuffers_3.5.200.v20120523-1310.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.debug.core_3.7.100.v20120521-2012.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.jdt.core_3.8.2.v20120814-155456.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.jdt.compiler.apt_1.0.500.v20120522-1651.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.jdt.compiler.tool_1.0.101.v20120522-1651.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.team.core_3.6.100.v20120524-0627.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.jdt.launching_3.6.100.v20120523-1953.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.jdt.debug_3.7.101.v20120725-115645/jdi.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.jdt.debug_3.7.101.v20120725-115645/jdimodel.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.jdt.debug_3.7.101.v20120725-115645/tools.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.jdt.ui_3.8.1.v20120814-144251.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.search_3.8.0.v20120523-1540.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.ltk.core.refactoring_3.6.0.v20120523-1543.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.ltk.ui.refactoring_3.7.0.v20120523-1543.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.ui.navigator_3.5.200.v20120705-114103.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.compare_3.5.300.v20120522-1148.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.team.ui_3.6.200.v20120522-1148.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.debug.ui_3.8.1.v20120718-192144.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.ui.console_3.5.100.v20120521-2012.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.ui.navigator.resources_3.4.400.v20120705-114010.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.ui.views.properties.tabbed_3.5.300.v20120523-1955.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.jdt.core.manipulation_1.5.0.v20120523-1543.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.jdt.debug.ui_3.6.100.v20120530-1425.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.core.runtime.compatibility_3.2.200.v20120521-2346.jar"/>
+			<pathelement path="../../../plugins/org.eclipse.update.configurator_3.3.200.v20120523-1752.jar"/>
+		</path>
+		<!-- compile the source code -->
+		<javac destdir="${temp.folder}/tomcat.jar.bin" failonerror="${javacFailOnError}" verbose="${javacVerbose}" debug="${javacDebugInfo}" includeAntRuntime="no" bootclasspath="${bundleBootClasspath}" source="${bundleJavacSource}" target="${bundleJavacTarget}"		>
+			<compilerarg line="${compilerArg}" compiler="${build.compiler}"/>
+			<classpath refid="tomcat.jar.classpath" />
+			<src path="src/"			/>
+			<compilerarg value="@${basedir}/javaCompiler.tomcat.jar.args" compiler="org.eclipse.jdt.core.JDTCompilerAdapter"			/>
+			<compilerarg line="-log &apos;${temp.folder}/tomcat.jar.bin${logExtension}&apos;" compiler="org.eclipse.jdt.core.JDTCompilerAdapter"			/>
 		</javac>
-		-->
-		<!-- copy necessary resources -->
-		<copy todir="${temp.folder}/tomcat.jar.bin">
-			<fileset dir="bin/" includes="**/*"/>
+		<antcall target="checkCompilationResults"/>
+		<!-- Copy necessary resources -->
+		<copy todir="${temp.folder}/tomcat.jar.bin" failonerror="true" overwrite="false">
+			<fileset dir="src/">
+				<exclude name="**/*.java"/>
+				<exclude name="**/package.htm*"/>
+			</fileset>
 		</copy>
 		<mkdir dir="${build.result.folder}"/>
-		<jar jarfile="${build.result.folder}/tomcat.jar" basedir="${temp.folder}/tomcat.jar.bin"/>
+		<jar destfile="${build.result.folder}/tomcat.jar" basedir="${temp.folder}/tomcat.jar.bin"/>
 		<delete dir="${temp.folder}/tomcat.jar.bin"/>
 	</target>
 
 	<target name="tomcatsrc.zip" depends="init" unless="tomcatsrc.zip">
 		<mkdir dir="${build.result.folder}"/>
-		<zip zipfile="${build.result.folder}/tomcatsrc.zip" filesonly="false" update="no">
-<!--			<fileset dir="src/" includes="**/*.java"/>
--->
-			<fileset dir="${basedir}" excludes="**/bin/**/*.*,**/CVS"/>
+		<antcall target="zip.tomcatsrc.zip"/>
+	</target>
+	<target name="zip.tomcatsrc.zip">
+		<zip destfile="${build.result.folder}/tomcatsrc.zip" filesonly="false" whenempty="skip" update="false">
+			<fileset dir="src/">
+				<include name="**/*.java"/>
+			</fileset>
 		</zip>
 	</target>
+	<target name="copy.tomcatsrc.zip">
+		<copy todir="${source.destination.folder}/tomcatsrc" failonerror="true" overwrite="true">
+			<fileset dir="src/">
+				<include name="**/*.java"/>
+			</fileset>
+		</copy>
+	</target>
 
-	<target name="build.jars" depends="init">
+	<target name="build.jars" depends="init" description="Compile classes and build nested jars for the plug-in: com.sysdeo.eclipse.tomcat.">
+		<delete file="${compilation.problem.marker}" quiet="true"/>
 		<available property="tomcat.jar" file="${build.result.folder}/tomcat.jar"/>
 		<antcall target="tomcat.jar"/>
+	</target>
+
+	<target name="checkCompilationResults" if="compilation.error.occured">
+		<echo file="${compilation.problem.marker}" message="com.sysdeo.eclipse.tomcat_3.3.0.4${line.separator}compilation.error.occured=${compilation.error.occured}"/>
+		<eclipse.logCompileError bundle="com.sysdeo.eclipse.tomcat_3.3.0.4" log="${compilation.prereq.log}">
+		</eclipse.logCompileError>
 	</target>
 
 	<target name="build.sources" depends="init">
@@ -76,38 +277,146 @@
 		<antcall target="tomcatsrc.zip"/>
 	</target>
 
-		<target name="build.zips" depends="init">
-		</target>
+	<target name="publish.bin.parts" depends="init" if="p2.publish.parts" unless="compilation.problem.marker.exists">
+		<mkdir dir="${build.result.folder}/com.sysdeo.eclipse.tomcat_3.3.0.4"/>
+		<copy todir="${build.result.folder}" failonerror="true" overwrite="true">
+			<fileset dir="${basedir}">
+				<include name="META-INF/MANIFEST.MF"/>
+				<include name="plugin.xml"/>
+				<include name="fragment.xml"/>
+			</fileset>
+		</copy>
+		<antcall target="apitools.generation">
+			<param name="target.folder" value="${build.result.folder}"/>
+			<param name="projectLocation" value="${basedir}"/>
+			<param name="binary.folders" value="${build.result.folder}/tomcat.jar"/>
+			<param name="projectName" value="${bundleId}_${bundleVersion}"/>
+		</antcall>
+		<eclipse.gatherBundle 
+		   metadataRepository="${p2.build.repo}"
+		   artifactRepository="${p2.build.repo}"
+		   buildResultFolder="${build.result.folder}"
+		   unpack="true"
+		   baseDirectory="${basedir}"
+		/>
+	</target>
+
+	<target name="gather.bin.parts" depends="init" if="destination.temp.folder">
+		<mkdir dir="${destination.temp.folder}/com.sysdeo.eclipse.tomcat_3.3.0.4"/>
+		<copy todir="${destination.temp.folder}/com.sysdeo.eclipse.tomcat_3.3.0.4" failonerror="true" overwrite="false">
+			<fileset dir="${build.result.folder}">
+				<include name="tomcat.jar"/>
+			</fileset>
+		</copy>
+		<copy todir="${destination.temp.folder}/com.sysdeo.eclipse.tomcat_3.3.0.4" failonerror="true" overwrite="true">
+			<fileset dir="${basedir}">
+				<include name="plugin.xml"/>
+				<include name="*.jar"/>
+				<include name="DevLoader.zip"/>
+				<include name="icons/"/>
+				<include name="img/"/>
+				<include name="license.txt"/>
+				<include name="plugin.properties"/>
+				<include name="plugin_bg.properties"/>
+				<include name="plugin_de.properties"/>
+				<include name="plugin_fr.properties"/>
+				<include name="plugin_it.properties"/>
+				<include name="plugin_ja.properties"/>
+				<include name="plugin_ptbr.properties"/>
+				<include name="readme.html"/>
+				<include name="readmeDevLoader.html"/>
+				<include name="releaseNotesV33.txt"/>
+			</fileset>
+		</copy>
+		<antcall target="apitools.generation">
+			<param name="target.folder" value="${destination.temp.folder}/com.sysdeo.eclipse.tomcat_3.3.0.4"/>
+			<param name="projectLocation" value="${basedir}"/>
+			<param name="binary.folders" value="${destination.temp.folder}/com.sysdeo.eclipse.tomcat_3.3.0.4/tomcat.jar"/>
+			<param name="projectName" value="${bundleId}_${bundleVersion}"/>
+		</antcall>
+	</target>
+
+	<target name="build.zips" depends="init">
+	</target>
 
 	<target name="gather.sources" depends="init" if="destination.temp.folder">
-		<mkdir dir="${destination.temp.folder}/${full.name}"/>
-		<copy file="${build.result.folder}/tomcatsrc.zip" todir="${destination.temp.folder}/${full.name}"/>
+		<mkdir dir="${destination.temp.folder}/com.sysdeo.eclipse.tomcat_3.3.0.4"/>
+		<copy file="${build.result.folder}/tomcatsrc.zip" todir="${destination.temp.folder}/com.sysdeo.eclipse.tomcat_3.3.0.4" failonerror="false" overwrite="false"/>
+		<antcall target="copy.src.includes">
+			<param name="source.destination.folder" value="${destination.temp.folder}/com.sysdeo.eclipse.tomcat_3.3.0.4"/>
+		</antcall>
+	</target>
+
+	<target name="gather.individual.sources" depends="init">
+		<antcall target="copy.tomcatsrc.zip">
+			<param name="source.destination.folder" value="${destination.temp.folder}"/>
+		</antcall>
+		<antcall target="copy.src.includes">
+			<param name="source.destination.folder" value="${destination.temp.folder}"/>
+		</antcall>
+	</target>
+
+	<target name="copy.src.includes" depends="init">
+		<copy todir="${source.destination.folder}" failonerror="false" overwrite="false">
+			<fileset dir="${basedir}">
+				<include name=".classpath"/>
+				<include name=".project"/>
+				<include name=".settings/"/>
+				<include name="DevFileDirContextTomcat7/"/>
+				<include name="DevFileDirContextTomcat7-7.0.23.0.jar"/>
+				<include name="DevLoader/"/>
+				<include name="DevLoader.zip"/>
+				<include name="DevloaderTomcat7/"/>
+				<include name="DevloaderTomcat7.jar"/>
+				<include name="build.properties"/>
+				<include name="build.xml"/>
+				<include name="icons/"/>
+				<include name="img/"/>
+				<include name="license.txt"/>
+				<include name="plugin.properties"/>
+				<include name="plugin.xml"/>
+				<include name="plugin_bg.properties"/>
+				<include name="plugin_de.properties"/>
+				<include name="plugin_fr.properties"/>
+				<include name="plugin_it.properties"/>
+				<include name="plugin_ja.properties"/>
+				<include name="plugin_ptbr.properties"/>
+				<include name="readme.html"/>
+				<include name="readmeDevLoader.html"/>
+				<include name="releaseNotesV33.txt"/>
+				<include name="src/"/>
+			</fileset>
+		</copy>
 	</target>
 
 	<target name="gather.logs" depends="init" if="destination.temp.folder">
-		<mkdir dir="${destination.temp.folder}/${full.name}"/>
-		<copy file="${temp.folder}/tomcat.jar.bin.log" todir="${destination.temp.folder}/${full.name}"/>
+		<mkdir dir="${destination.temp.folder}/com.sysdeo.eclipse.tomcat_3.3.0.4"/>
+		<copy todir="${destination.temp.folder}/com.sysdeo.eclipse.tomcat_3.3.0.4" failonerror="false" overwrite="false">
+			<fileset dir="${temp.folder}">
+				<include name="tomcat.jar.bin${logExtension}"/>
+			</fileset>
+		</copy>
 	</target>
 
-	<target name="clean" depends="init">
+	<target name="clean" depends="init" description="Clean the plug-in: com.sysdeo.eclipse.tomcat of all the zips, jars and logs created.">
 		<delete file="${build.result.folder}/tomcat.jar"/>
 		<delete file="${build.result.folder}/tomcatsrc.zip"/>
-		<delete file="${plugin.destination}/${full.name}.jar"/>
-		<delete file="${plugin.destination}/${full.name}.zip"/>
+		<delete file="${plugin.destination}/com.sysdeo.eclipse.tomcat_3.3.0.4.jar"/>
+		<delete file="${plugin.destination}/com.sysdeo.eclipse.tomcat_3.3.0.4.zip"/>
 		<delete dir="${temp.folder}"/>
+		<delete file="${compilation.problem.marker}" quiet="true"/>
 	</target>
 
-	<target name="refresh" depends="init" if="eclipse.running">
-		<eclipse.refreshLocal resource="${plugin}" depth="infinite"/>
+	<target name="refresh" depends="init" if="eclipse.running" description="Refresh this folder.">
+		<eclipse.convertPath fileSystemPath="D:/dev/eclipse-4.2.1/workspaces/tomcatPlugin/com.sysdeo.eclipse.tomcat" property="resourcePath"/>
+		<eclipse.refreshLocal resource="${resourcePath}" depth="infinite"/>
 	</target>
 
-	<target name="zip.plugin" depends="init">
+	<target name="zip.plugin" depends="init" description="Create a zip containing all the elements for the plug-in: com.sysdeo.eclipse.tomcat.">
 		<delete dir="${temp.folder}"/>
-		<delete file="${build.result.folder}/tomcat.jar"/>
-		<delete file="${build.result.folder}/tomcatsrc.zip"/>
 		<mkdir dir="${temp.folder}"/>
-		<antcall target="build.sources"/>
 		<antcall target="build.jars"/>
+		<antcall target="build.sources"/>
 		<antcall target="gather.bin.parts">
 			<param name="destination.temp.folder" value="${temp.folder}/"/>
 		</antcall>
@@ -115,13 +424,16 @@
 			<param name="destination.temp.folder" value="${temp.folder}/"/>
 		</antcall>
 		<delete>
-			<fileset dir="${temp.folder}" includes="**/*.bin.log"/>
+			<fileset dir="${temp.folder}">
+				<include name="**/*.bin${logExtension}"/>
+			</fileset>
 		</delete>
-		<antcall target="zip.folder"/>
+		<zip destfile="${plugin.destination}/com.sysdeo.eclipse.tomcat_3.3.0.4.zip" basedir="${temp.folder}" filesonly="true" whenempty="skip" update="false"/>
 		<delete dir="${temp.folder}"/>
 	</target>
-	<target name="zip.folder" depends="init">
-		<zip zipfile="${plugin.destination}/${full.name}.zip" basedir="${temp.folder}" filesonly="true" update="no" excludes="**/*.bin.log"/>
+
+	<target name="apitools.generation" if="generateAPIDescription">
+		<apitooling.apigeneration  projectName="${projectName}" project="${projectLocation}" binary="${binary.folders}" target="${target.folder}" extramanifests="${extraManifests}" allownonapiproject="${allowNonApiProject}"		/>
 	</target>
 
 </project>

@@ -294,11 +294,25 @@ public abstract class TomcatBootstrap {
 			for (int j = 0; j < tmpEntry.length; j++) {
                 // Check maven scope if defined
                 boolean isRuntime = true;
+                boolean isSnapshot = false;
+                boolean isTestJar = false;
                 for (IClasspathAttribute att : tmpEntry[j].getExtraAttributes()) {
                     if ("maven.scope".equals(att.getName())) {
                         isRuntime = "compile".equals(att.getValue()) || "runtime".equals(att.getValue());
-                        break;
                     }
+                    else if ("maven.version".equals(att.getName())) {
+                    	isSnapshot = att.getValue() != null && att.getValue().contains("SNAPSHOT");
+                    }
+                    else if ("maven.classifier".equals(att.getName())) {
+                    	isTestJar = "tests".equals(att.getValue());
+                    }
+                }
+
+                // If a project depends on both the jar/compile and test-jar/test dependency of the same eclipse project,
+                // the maven container only contains the definition for the latter (ie: test dependency)
+                // So we need to force the include of the project
+                if( !isRuntime && isSnapshot && isTestJar && tmpEntry[j].getEntryKind() == IClasspathEntry.CPE_PROJECT ) {
+                	isRuntime = true;;
                 }
 
 				if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
