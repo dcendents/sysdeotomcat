@@ -4,7 +4,7 @@ package com.sysdeo.eclipse.tomcat;
  * (c) Copyright Sysdeo SA 2001, 2002.
  * All Rights Reserved.
  */
- 
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -45,13 +45,13 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 	private static final String KEY_UPDATEXML = "updateXml";
 	private static final String KEY_EXPORTSOURCE = "exportSource";
 	private static final String KEY_RELOADABLE="reloadable";
-	private static final String KEY_REDIRECTLOGGER="redirectLogger";	
+	private static final String KEY_REDIRECTLOGGER="redirectLogger";
 	private static final String KEY_WARLOCATION = "warLocation";
 	private static final String KEY_ROOTDIR = "rootDir";
 	private static final String KEY_EXTRAINFO = "extraInfo";
 	private static final String KEY_WEBCLASSPATH = WebClassPathEntries.TAG_NAME;
 	private static final String extraBeginTag = "<!-- Extra info begin -->";
-	private static final String extraEndTag = "<!-- Extra info end -->";	
+	private static final String extraEndTag = "<!-- Extra info end -->";
 
 //	private static final QualifiedName QN_WEBPATH = new QualifiedName("TomcatProject", KEY_WEBPATH);
 //	private static final QualifiedName QN_UPDATEXML = new QualifiedName("TomcatProject", KEY_UPDATEXML);
@@ -77,7 +77,7 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 	protected boolean reloadable = true;
 	protected boolean redirectLogger = false;
 	protected WebClassPathEntries webClassPathEntries;
-	
+
 	protected IFolder rootDirFolder;
 
 	/**
@@ -95,7 +95,7 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 	public void setProject(IProject project) {
 		this.project = project;
 	}
-	
+
 	/*
 	 * @see IProjectNature#configure()
 	 */
@@ -126,7 +126,7 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 
 	static public void addTomcatNature(IJavaProject project) {
 		try {
-			JDTUtil.addNatureToProject(project.getProject(), TomcatLauncherPlugin.NATURE_ID); 	
+			JDTUtil.addNatureToProject(project.getProject(), TomcatLauncherPlugin.NATURE_ID);
 		} catch(CoreException ex) {
 			TomcatLauncherPlugin.log(ex.getMessage());
 		}
@@ -134,7 +134,7 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 
 	static public void removeTomcatNature(IJavaProject project) {
 		try {
-			JDTUtil.removeNatureToProject(project.getProject(), TomcatLauncherPlugin.NATURE_ID); 	
+			JDTUtil.removeNatureToProject(project.getProject(), TomcatLauncherPlugin.NATURE_ID);
 		} catch(CoreException ex) {
 			TomcatLauncherPlugin.log(ex.getMessage());
 		}
@@ -168,12 +168,12 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 		} else {
 			return null;
 		}
-	}	
+	}
 
 	private File getPropertiesFile() {
 		return (this.getProject().getLocation().append(PROPERTIES_FILENAME).toFile());
 	}
-	
+
 	private String readProperty(String key) {
 		String result = null;
 		try {
@@ -185,21 +185,21 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 				TomcatLauncherPlugin.log(e2);
 			}
 		}
-		
+
 		if(result == null) {
 			result = "";
 		}
-			
+
 		return result;
 	}
-	
+
 	/**
 	 * Gets the rootDir.
 	 * @return Returns a String
 	 */
 	public String getRootDir() {
 		return this.readProperty(KEY_ROOTDIR);
-	}	
+	}
 
 	/**
 	 * Sets the rootDir.
@@ -209,14 +209,14 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 		this.rootDir = rd;
 		this.rootDirFolder = null;
 	}
-		
+
 	/**
 	 * Gets the webpath.
 	 * @return Returns a String
 	 */
 	public String getWebPath() {
 		return this.readProperty(KEY_WEBPATH);
-	}	
+	}
 
 	/**
 	 * Sets the webpath.
@@ -227,14 +227,14 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 	}
 
 	public void updateWebPath(String newWebPath) throws Exception {
-		setWebPath(newWebPath);	
+		setWebPath(newWebPath);
 		if(!newWebPath.equals(this.getWebPath())) {
 			if(getUpdateXml()) {
 				removeContext();
 			}
-		}	
+		}
 	}
-		
+
 	/**
 	 * Gets the warfile.
 	 * @return Returns a String
@@ -250,7 +250,7 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 	public void setWarLocation(String wl) {
 		this.warLocation = wl;
 	}
-	
+
 	/**
 	 * Gets the updateXml.
 	 * @return Returns a boolean
@@ -291,11 +291,11 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 		String reloadableProperty = this.readProperty(KEY_RELOADABLE);
 		// Set default value to true
 		if(reloadableProperty.equals("")) {
-			reloadableProperty = "true";	
+			reloadableProperty = "true";
 		}
 		return new Boolean(reloadableProperty).booleanValue();
 	}
-	
+
 	/**
 	 * Sets the reloadable
 	 * @param reloadable The reloadable to set
@@ -312,11 +312,11 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 		String redirectLoggerProperty = this.readProperty(KEY_REDIRECTLOGGER);
 		// Set default value to false
 		if(redirectLoggerProperty.equals("")) {
-			redirectLoggerProperty = "false";	
+			redirectLoggerProperty = "false";
 		}
 		return new Boolean(redirectLoggerProperty).booleanValue();
 	}
-	
+
 	/**
 	 * Sets the reloadable
 	 * @param reloadable The reloadable to set
@@ -340,7 +340,7 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 	public void setExtraInfo(String extra) {
 		this.extraInfo = extra;
 	}
-		
+
 	/**
 	 * set the classpath entries which shall be loaded by the webclassloader
 	 * @param entries List of WebClasspathEntry objects
@@ -348,8 +348,8 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 	public void setWebClassPathEntries(WebClassPathEntries entries) {
 		webClassPathEntries = entries;
 	}
-	
-	/** 
+
+	/**
 	 * return the webclasspath entries
 	 */
 	public WebClassPathEntries getWebClassPathEntries() {
@@ -374,24 +374,24 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 			fileContent.append("    <redirectLogger>" + redirectLogger + "</redirectLogger>\n");
 			fileContent.append("    <updateXml>" + updateXml + "</updateXml>\n");
 			fileContent.append("    <warLocation>" + warLocation + "</warLocation>\n");
-			fileContent.append("    <extraInfo>" + URLEncoder.encode(extraInfo) + "</extraInfo>\n");			
-			fileContent.append("    <webPath>" + webPath + "</webPath>\n");		
+			fileContent.append("    <extraInfo>" + URLEncoder.encode(extraInfo) + "</extraInfo>\n");
+			fileContent.append("    <webPath>" + webPath + "</webPath>\n");
 			if (webClassPathEntries != null) {
 				fileContent.append(webClassPathEntries.xmlMarshal(4));
 			}
 			fileContent.append("</tomcatProjectProperties>\n");
 			FileUtil.toTextFile(getPropertiesFile(), fileContent.toString());
-			// refresh the project files. 
-			project.refreshLocal(IResource.DEPTH_ONE, null); 
-			
+			// refresh the project files.
+			project.refreshLocal(IResource.DEPTH_ONE, null);
+
 			//Notification for VCM (Team plug-in)
 			IFile propertiesIFile = this.getProject().getFile(PROPERTIES_FILENAME);
 			ResourcesPlugin.getWorkspace().validateEdit(new IFile[]{propertiesIFile}, null);
-			
-			
+
+
 		} catch (Exception ex) {
-			TomcatLauncherPlugin.log(ex.getMessage());	
-		}	
+			TomcatLauncherPlugin.log(ex.getMessage());
+		}
 	}
 
 	/**
@@ -399,27 +399,27 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 	 */
 	public void fullConfiguration() throws CoreException, IOException {
 		if(!rootDir.equals("")) {
-			this.initRootDirFolder(true);	
+			this.initRootDirFolder(true);
 		}
 
-		this.addProjectToSourcePathPref();	
+		this.addProjectToSourcePathPref();
 		this.createWEBINFFolder();
 		this.createWEBINFSrcFolder();
 		this.createWorkFolder();
-		
+
 		this.addTomcatJarToProjectClasspath();
 		this.addWEBINFLibJarFilesToProjectClasspath();
-				
+
 		this.clearDefaultSourceEntries();
 		this.setClassesAsOutputFolder();
 		if(classesContainsJavaFiles()) {
 			this.setClassesAsSourceFolder();
 		}
-		
+
 		this.setSrcAsSourceFolder();
 		this.setWEBINFSrcAsSourceFolder();
 		this.setWorkAsSourceFolder();
-	
+
 		this.updateContext();
 	}
 
@@ -436,26 +436,26 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 
 	/*
 	 * Add servlet.jar and jasper.jar to project classpath
-	 */	
+	 */
 	public void addTomcatJarToProjectClasspath()  throws CoreException {
 		TomcatBootstrap tb = TomcatLauncherPlugin.getDefault().getTomcatBootstrap();
-		
+
 		IClasspathEntry[] entries = javaProject.getRawClasspath();
 		List cp = new ArrayList(entries.length + 1);
-		
+
 		for (int i = 0; i < entries.length; i++) {
 			IClasspathEntry entry = entries[i];
-			if(!((entry.getEntryKind() == IClasspathEntry.CPE_VARIABLE) && 
+			if(!((entry.getEntryKind() == IClasspathEntry.CPE_VARIABLE) &&
 				(entry.getPath().toOSString().startsWith(TomcatLauncherPlugin.getDefault().getTomcatIPath().toOSString())))) {
 				cp.add(entry);
-			}		
+			}
 		}
 
 		cp.addAll(tb.getTomcatJars());
-							
+
 		javaProject.setRawClasspath((IClasspathEntry[])cp.toArray(new IClasspathEntry[cp.size()]), null);
 	}
-	
+
 
 	/*
 	 * Add all jar in WEB-INF/lib to project classpath
@@ -467,16 +467,16 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 		IClasspathEntry[] entries = javaProject.getRawClasspath();
 		List cp= new ArrayList(entries.length + 1);
 		cp.addAll(Arrays.asList(entries));
-		
+
 		for(int i=0; i<libFiles.length; i++) {
 			if((libFiles[i].getType() == IResource.FILE) && (libFiles[i].getFileExtension().equalsIgnoreCase("jar"))) {
 				cp.add(JavaCore.newLibraryEntry(libFiles[i].getFullPath(), null, null));
-			}				
+			}
 		}
 
 		javaProject.setRawClasspath((IClasspathEntry[])cp.toArray(new IClasspathEntry[cp.size()]), null);
 	}
-	
+
 	public IFolder getWebInfFolder() {
 		if (getRootDirFolder() == null) {
 			return project.getFolder("WEB-INF");
@@ -493,7 +493,7 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 //		}
 
 		return project.getFolder("work");
-		
+
 	}
 
 	public IFolder getRootDirFolder() {
@@ -529,13 +529,13 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 
 
 	public void createWEBINFFolder()  throws CoreException {
-		IFolder webinfFolder = this.getWebInfFolder();	
+		IFolder webinfFolder = this.getWebInfFolder();
 		this.createFolder(webinfFolder);
 		this.createFolder(webinfFolder.getFolder("classes"));
 		this.createFolder(webinfFolder.getFolder("lib"));
-	    
+
 		// Create .cvsignore for classes
-		this.createFile(webinfFolder.getFile(".cvsignore"), "classes");     
+		this.createFile(webinfFolder.getFile(".cvsignore"), "classes");
 	}
 
 	public void createWEBINFSrcFolder()  throws CoreException {
@@ -545,10 +545,10 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 	public void createWorkFolder()  throws CoreException {
 		IFolder folderHandle = this.getWorkFolder();
 		this.createFolder(folderHandle);
-		
+
 		String tomcatVersion = TomcatLauncherPlugin.getDefault().getTomcatVersion();
-		if(tomcatVersion.equals(TomcatLauncherPlugin.TOMCAT_VERSION4) 
-				|| tomcatVersion.equals(TomcatLauncherPlugin.TOMCAT_VERSION41)) { 	
+		if(tomcatVersion.equals(TomcatLauncherPlugin.TOMCAT_VERSION4)
+				|| tomcatVersion.equals(TomcatLauncherPlugin.TOMCAT_VERSION41)) {
 			folderHandle = folderHandle.getFolder("org");
 			this.createFolder(folderHandle);
 			folderHandle = folderHandle.getFolder("apache");
@@ -556,10 +556,10 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 			folderHandle = folderHandle.getFolder("jsp");
 			this.createFolder(folderHandle);
 		}
-		
+
 		// Add a .cvsignore file in work directory
-		this.createFile(project.getFile(".cvsignore") , "work");     
-					
+		this.createFile(project.getFile(".cvsignore") , "work");
+
 	}
 
 	public void setSrcAsSourceFolder()  throws CoreException {
@@ -576,17 +576,17 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 		javaProject.setOutputLocation(classesFolder.getFullPath(),null);
 	}
 
-	public void setClassesAsSourceFolder()  throws CoreException {	
+	public void setClassesAsSourceFolder()  throws CoreException {
 		IFolder classesFolder = this.getWebInfFolder().getFolder("classes");
 		this.setFolderAsSourceEntry(classesFolder, null);
 	}
-	
+
 	public void setWorkAsSourceFolder()  throws CoreException {
 		this.setFolderAsSourceEntry(this.getWorkFolder(), this.getWorkFolder());
 	}
 
 
-	private void createFolder(IFolder folderHandle)  throws CoreException {		
+	private void createFolder(IFolder folderHandle)  throws CoreException {
 		try {
 			// Create the folder resource in the workspace
 			folderHandle.create(false, true, null); //new SubProgressMonitor(monitor, 500));
@@ -600,7 +600,7 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 		}
 	}
 
-	private void createFile(IFile fileHandle, String content)  throws CoreException {     
+	private void createFile(IFile fileHandle, String content)  throws CoreException {
 		try {
 			fileHandle.create(new ByteArrayInputStream(content.getBytes()), 0, null);
 		}
@@ -612,8 +612,8 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 				throw e;
 		}
 	}
-		
-		
+
+
 	/*
 	 * ouput could be null (project default output will be used)
 	 */
@@ -623,14 +623,14 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 		System.arraycopy(entries,0, newEntries,0, entries.length);
 		IPath outputPath = null;
 		if(output != null) outputPath = output.getFullPath();
-		
+
 		IPath[] emptyPath = {};
 		newEntries[entries.length] = JavaCore.newSourceEntry(folderHandle.getFullPath(), emptyPath, outputPath);
 
-		javaProject.setRawClasspath(newEntries, null);	
+		javaProject.setRawClasspath(newEntries, null);
 	}
 
-	 
+
 	/**
 	 * Add or update a Context definition
 	 */
@@ -641,23 +641,23 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 			this.updateContextFile();
 		}
 	}
-	
+
 	/*
 	 * Add or update a Context entry on Tomcat server.xml file
 	 */
 	private void updateServerXML() throws CoreException, IOException {
 
-		if(getUpdateXml()) {		
+		if(getUpdateXml()) {
 			this.backupServerXML();
 
 			String xml = FileUtil.readTextFile(getServerXML());
 			if(!contextExistsInXML(xml)) {
-				this.addContextToServerXML();	
+				this.addContextToServerXML();
 			} else {
-				this.updateContextDefinitionInFile(getServerXML());		
+				this.updateContextDefinitionInFile(getServerXML());
 			}
 		}
-	}	
+	}
 
 	/*
 	 * create or update a Context file
@@ -667,7 +667,7 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 		if(getUpdateXml()) {
 			File contextFile = this.getContextFile();
 			if(!contextFile.exists()) {
-				FileUtil.toTextFile(contextFile, this.createContextDefinition());	
+				FileUtil.toTextFile(contextFile, this.createContextDefinition());
 			} else {
 				updateContextDefinitionInFile(contextFile);
 			}
@@ -680,40 +680,40 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 			File.separator + getContextFileName());
 		return contextFile;
 	}
-	
+
 	private String getContextFileName() {
 		String contextFileName = this.getWebPath();
 		if(contextFileName.startsWith("/")) {
 			contextFileName = contextFileName.substring(1);
 		}
-		
+
 		// Tomcat 5 converts / to # in context file name
 		contextFileName = contextFileName.replace('/', '#');
-		
-		return contextFileName + ".xml";	
+
+		return contextFileName + ".xml";
 	}
-	
-	
-	
+
+
+
 	public void removeContext() throws CoreException, IOException {
 		// Always call removeContext file because Tomcat create it automatically when using server.xml
 		this.removeContextFile();
-		
+
 		if(TomcatLauncherPlugin.getDefault().getConfigMode().equals(TomcatLauncherPlugin.SERVERXML_MODE)) {
 			this.removeContextInServerXML();
 		}
 	}
 
 	private void removeContextFile() {
-		this.getContextFile().delete();	
+		this.getContextFile().delete();
 	}
-	
+
 	private void removeContextInServerXML() throws CoreException, IOException {
 		this.backupServerXML();
 
 		String xml = FileUtil.readTextFile(getServerXML());
-		if(contextExistsInXML(xml)) {			
-			int contextTagIdx = this.getContextTagIndex(xml);			
+		if(contextExistsInXML(xml)) {
+			int contextTagIdx = this.getContextTagIndex(xml);
 			int endTagIndex = xml.indexOf("</Context>", contextTagIdx);
 			boolean hasNoBody = false;
 			if (endTagIndex < 0) {
@@ -722,15 +722,15 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 			}
 			else
 				endTagIndex+= "</Context>".length();
-			
+
 
 			StringBuffer out = null;
 
 			out = new StringBuffer(xml.substring(0, contextTagIdx));
-			out.append(xml.substring(endTagIndex+1, xml.length()));				
+			out.append(xml.substring(endTagIndex+1, xml.length()));
 
-			if (out != null) FileUtil.toTextFile(getServerXML(), out.toString());				
-				
+			if (out != null) FileUtil.toTextFile(getServerXML(), out.toString());
+
 		}
 	}
 
@@ -743,27 +743,27 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 	public void backupServerXML() throws CoreException, IOException {
 		String backup =  getServerXMLLocation() + ".backup";
 		String old =  getServerXMLLocation() + ".old";
-			
+
 		if(!getServerXML().exists()) {
 			String msg = "Tomcat server.xml file is not found in " + getServerXML().getAbsolutePath();
-			Status status = new Status(IStatus.ERROR, TomcatLauncherPlugin.getDefault().getDescriptor().getUniqueIdentifier(), IStatus.ERROR, msg, null);
+			Status status = new Status(IStatus.ERROR, TomcatLauncherPlugin.getDefault().getBundle().getSymbolicName(), IStatus.ERROR, msg, null);
 			throw new CoreException(status);
 		}
-			
+
 		File backupFile = new File(backup);
 		if(!backupFile.exists()) {
-			FileUtil.copy(getServerXML(), backupFile);	
+			FileUtil.copy(getServerXML(), backupFile);
 		}
-		
-		FileUtil.copy(getServerXML(), new File(old));			
-	}
-	
 
-	
-	private File getServerXML() {
-		return new File(getServerXMLLocation());		
+		FileUtil.copy(getServerXML(), new File(old));
 	}
-	
+
+
+
+	private File getServerXML() {
+		return new File(getServerXMLLocation());
+	}
+
 	private String getServerXMLLocation() {
 		return TomcatLauncherPlugin.getDefault().getConfigFile();
 	}
@@ -775,49 +775,49 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 	private boolean contextExistsInXML(String xml) throws IOException {
 		return (getContextTagIndex(xml) != -1);
 	}
-	
+
 	private int getContextTagIndex(String xml) throws IOException {
 		int pathIndex = xml.indexOf(getContextPath());
-		
+
 		if(pathIndex == -1)
-			return -1;		
-		
+			return -1;
+
 		int tagIndex = (xml.substring(0, pathIndex)).lastIndexOf('<');
-		String tag = xml.substring(tagIndex, tagIndex + 8);	
+		String tag = xml.substring(tagIndex, tagIndex + 8);
 		if(!tag.equalsIgnoreCase(getContextStartTag()))
 			return -1;
-			
+
 		return tagIndex;
 	}
-	
+
 	private void addContextToServerXML() throws IOException {
 		String xml = FileUtil.readTextFile(getServerXML());
 		String tag = TomcatLauncherPlugin.getDefault().getTomcatBootstrap().getXMLTagAfterContextDefinition();
-			
+
 		int tagIndex = xml.indexOf(tag);
 		int insertIndex = (xml.substring(0, tagIndex)).lastIndexOf('\n');
-			
+
 		StringBuffer out = new StringBuffer(xml.substring(0, insertIndex));
 		out.append(this.createContextDefinition());
 		out.append(xml.substring(insertIndex, xml.length()));
-		
-		FileUtil.toTextFile(getServerXML(), out.toString());	
+
+		FileUtil.toTextFile(getServerXML(), out.toString());
 	}
-	
+
 	private String createContextDefinition() {
 		StringBuffer contextBuffer = new StringBuffer();
 		contextBuffer.append(getContextStartTag());
 		contextBuffer.append(' ');
 		contextBuffer.append(getContextPath());
 		contextBuffer.append(' ');
-		contextBuffer.append(getContextReloadable());	
-		contextBuffer.append(' ');		
+		contextBuffer.append(getContextReloadable());
+		contextBuffer.append(' ');
 		contextBuffer.append(getContextDocBase());
 		contextBuffer.append(' ');
 		contextBuffer.append(getContextWorkDir());
 		contextBuffer.append(" />\n");
 
-		String context = contextBuffer.toString();			
+		String context = contextBuffer.toString();
 		if (getWebClassPathEntries() != null) {
 			context = this.addLoaderToContext(context);
 		}
@@ -827,9 +827,9 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 		if(!(getExtraInfo().equals(""))) {
 			context = this.addExtraInfoToContext(context);
 		}
-		
+
 		return context;
-	
+
 	}
 
 	private String updateContextDefinition(String context) {
@@ -841,14 +841,14 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 		} else {
 			context = this.updateReloadableInContext(context);
 		}
-				
+
 		// update docBase if set
 		int docBaseIndex = context.indexOf("docBase");
 		if(docBaseIndex == -1) {
 			context = this.addDocBaseToContext(context);
 		} else {
 			context = this.updateDocBaseInContext(context);
-		} 
+		}
 
 		// if work param not set
 		int workIndex = context.indexOf("workDir");
@@ -865,11 +865,11 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 		}
 		if((loaderIndex != -1) && (getWebClassPathEntries() == null)) {
 			context = this.removeLoaderInContext(context);
-		}		
+		}
 		if((loaderIndex != -1) && (getWebClassPathEntries() != null)) {
 			context = this.updateLoaderInContext(context);
-		}		
-	
+		}
+
 
 		// if logger not set
 		int loggerIndex = context.indexOf("<Logger");
@@ -878,11 +878,11 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 		}
 		if((loggerIndex != -1) && !getRedirectLogger()) {
 			context = this.removeLoggerInContext(context);
-		}		
+		}
 		if((loggerIndex != -1) && getRedirectLogger()) {
 			context = this.updateLoggerInContext(context);
 		}
-		
+
 		// Extra info
 		int extraInfoIndex = context.indexOf(extraBeginTag);
 		if((extraInfoIndex == -1) && !(getExtraInfo().equals(""))) {
@@ -890,47 +890,47 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 		}
 		if((extraInfoIndex != -1) && getExtraInfo().equals("")) {
 			context = this.removeExtraInfoInContext(context);
-		}		
+		}
 		if((extraInfoIndex != -1) && !(getExtraInfo().equals(""))) {
 			context = this.updateExtraInfoInContext(context);
 		}
 		return context;
 	}
-	
+
 	private void updateContextDefinitionInFile(File xmlFile) throws IOException {
-		String xml = FileUtil.readTextFile(xmlFile);	
+		String xml = FileUtil.readTextFile(xmlFile);
 		int contextTagIndex = this.getContextTagIndex(xml);
-		
+
 		// If context doesn't exist do nothing
 		if( contextTagIndex == -1) {
 			return;
-		}			
+		}
 
-		// Get context					
+		// Get context
 		int endContextTagIndex = xml.indexOf(">",contextTagIndex);
 		if(xml.charAt(endContextTagIndex-1) != '/') {
-			endContextTagIndex = xml.indexOf(this.getContextEndTag(), contextTagIndex) + this.getContextEndTag().length() -1; 	
+			endContextTagIndex = xml.indexOf(this.getContextEndTag(), contextTagIndex) + this.getContextEndTag().length() -1;
 		}
 		String context = xml.substring(contextTagIndex, endContextTagIndex+1);
 
 		StringBuffer out = new StringBuffer(xml.substring(0, contextTagIndex));
 		out.append(this.updateContextDefinition(context));
 		out.append(xml.substring(endContextTagIndex+1));
-		FileUtil.toTextFile(xmlFile, out.toString());	
+		FileUtil.toTextFile(xmlFile, out.toString());
 	}
 
 
 	private String addDocBaseToContext(String context) {
 		int reloadableIndex = context.indexOf(getContextReloadable());
-		int firstDoubleQuoteIndex = context.indexOf('"', reloadableIndex) + 1;		
+		int firstDoubleQuoteIndex = context.indexOf('"', reloadableIndex) + 1;
 		int docBaseIndex = context.indexOf('"',firstDoubleQuoteIndex) + 1;
 		StringBuffer out = new StringBuffer(context.substring(0, docBaseIndex));
 		out.append(' ');
 		out.append(getContextDocBase());
 		out.append(' ');
-		out.append(context.substring(docBaseIndex, context.length()));				
-		
-		return out.toString();			
+		out.append(context.substring(docBaseIndex, context.length()));
+
+		return out.toString();
 	}
 
 	private String updateDocBaseInContext(String context) {
@@ -940,8 +940,8 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 		StringBuffer out = new StringBuffer(context.substring(0, docBaseIndex));
 		out.append(getContextDocBase());
 		out.append(context.substring(endIndex+1, context.length()));
-		
-		return out.toString();			
+
+		return out.toString();
 	}
 
 	private String getContextReloadable(){
@@ -952,14 +952,14 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 		int pathIndex = context.indexOf(getContextPath());
 		int firstDoubleQuoteIndex = context.indexOf('"', pathIndex) + 1;
 		int reloadableIndex = context.indexOf('"',firstDoubleQuoteIndex) + 1;
-		
+
 		StringBuffer out = new StringBuffer(context.substring(0, reloadableIndex));
 		out.append(' ');
 		out.append(getContextReloadable());
 		out.append(' ');
-		out.append(context.substring(reloadableIndex, context.length()));				
-		
-		return out.toString();			
+		out.append(context.substring(reloadableIndex, context.length()));
+
+		return out.toString();
 	}
 
 	private String updateReloadableInContext(String context){
@@ -969,10 +969,10 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 		StringBuffer out = new StringBuffer(context.substring(0,reloadableIndex));
 		out.append(getContextReloadable());
 		out.append(context.substring(endIndex+1,context.length()));
-		
+
 		return out.toString();
 	}
-	
+
 	private String addWorkToContext(String context) {
 		int docBaseIndex = context.indexOf("docBase");
 		int firstDoubleQuoteIndex = context.indexOf('"',docBaseIndex) + 1;
@@ -981,9 +981,9 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 		out.append(' ');
 		out.append(getContextWorkDir());
 		out.append(' ');
-		out.append(context.substring(workIndex, context.length()));				
-		
-		return out.toString();			
+		out.append(context.substring(workIndex, context.length()));
+
+		return out.toString();
 	}
 
 	private String updateWorkInContext(String context) {
@@ -993,14 +993,14 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 		StringBuffer out = new StringBuffer(context.substring(0, workDirIndex));
 		out.append(getContextWorkDir());
 		out.append(context.substring(endIndex+1, context.length()));
-		
-		return out.toString();		
+
+		return out.toString();
 	}
 
 	// Add </Context> instead of  />, and \n if needed
 	private String formatContextEndTag(String context) {
 		int endContextStartTagIndex = context.indexOf(">");
-		StringBuffer newContext = new StringBuffer();		
+		StringBuffer newContext = new StringBuffer();
 		if(context.charAt(endContextStartTagIndex-1) == '/') {
 			newContext.append(context.substring(0, endContextStartTagIndex-1));
 			newContext.append(">");
@@ -1008,149 +1008,149 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 			newContext.append(getContextEndTag());
 			newContext.append("\n");
 			context = newContext.toString();
-			endContextStartTagIndex--;	
+			endContextStartTagIndex--;
 		} else {
 			int endContextTagIndex = context.indexOf(getContextEndTag());
 			if(context.charAt(endContextTagIndex-1) != '\n') {
 				newContext.append(context.substring(0,endContextTagIndex));
 				newContext.append("\n");
-				newContext.append(context.substring(endContextTagIndex));				
+				newContext.append(context.substring(endContextTagIndex));
 			} else {
 				return context;
 			}
 		}
-		
+
 		return newContext.toString();
 	}
-	
+
 	private String addLoaderToContext(String context) {
 		context = this.formatContextEndTag(context);
-		int endContextStartTagIndex = context.indexOf(">");		
+		int endContextStartTagIndex = context.indexOf(">");
 		int loaderIndex = endContextStartTagIndex + 1;
 		StringBuffer out = new StringBuffer(context.substring(0, loaderIndex));
 		out.append(getContextWebAppClassLoader());
-		out.append(context.substring(loaderIndex, context.length()));				
-		
-		return out.toString();			
+		out.append(context.substring(loaderIndex, context.length()));
+
+		return out.toString();
 	}
 
 	private String updateLoaderInContext(String context) {
-		context = this.formatContextEndTag(context);		
+		context = this.formatContextEndTag(context);
 		int endContextStartTagIndex = context.indexOf(">");
 		int startIndex = context.indexOf("<Loader", endContextStartTagIndex);
 		if(context.charAt(startIndex-1) == '\t') startIndex--;
-		if(context.charAt(startIndex-1) == '\n') startIndex--;		
+		if(context.charAt(startIndex-1) == '\n') startIndex--;
 		int endIndex = context.indexOf("/>",startIndex+1)+1;
 		StringBuffer out = new StringBuffer(context.substring(0, startIndex));
 		out.append(getContextWebAppClassLoader());
 		out.append(context.substring(endIndex+1, context.length()));
-		
-		return out.toString();		
+
+		return out.toString();
 	}
 
 	private String removeLoaderInContext(String context) {
 		int endContextStartTagIndex = context.indexOf(">");
 		int startIndex = context.indexOf("<Loader", endContextStartTagIndex);
 		if(context.charAt(startIndex-1) == '\t') startIndex--;
-		if(context.charAt(startIndex-1) == '\n') startIndex--;			
+		if(context.charAt(startIndex-1) == '\n') startIndex--;
 		int endIndex = context.indexOf("/>",startIndex+1)+1;
 		StringBuffer out = new StringBuffer(context.substring(0, startIndex));
 		out.append(context.substring(endIndex+1, context.length()));
-		
-		return out.toString();		
+
+		return out.toString();
 	}
 
 	private String addLoggerToContext(String context) {
 		context = this.formatContextEndTag(context);
-		int endContextStartTagIndex = context.indexOf(">");		
+		int endContextStartTagIndex = context.indexOf(">");
 		int loggerIndex = endContextStartTagIndex + 1;
 		StringBuffer out = new StringBuffer(context.substring(0, loggerIndex));
 		out.append(getContextLogger());
-		out.append(context.substring(loggerIndex, context.length()));				
-		
-		return out.toString();			
+		out.append(context.substring(loggerIndex, context.length()));
+
+		return out.toString();
 	}
 
 	private String updateLoggerInContext(String context) {
 		int endContextStartTagIndex = context.indexOf(">");
 		int startIndex = context.indexOf("<Logger", endContextStartTagIndex);
 		if(context.charAt(startIndex-1) == '\t') startIndex--;
-		if(context.charAt(startIndex-1) == '\n') startIndex--;			
+		if(context.charAt(startIndex-1) == '\n') startIndex--;
 		int endIndex = context.indexOf("/>",startIndex)+1;
 		StringBuffer out = new StringBuffer(context.substring(0, startIndex));
 		out.append(getContextLogger());
 		out.append(context.substring(endIndex+1, context.length()));
-		
-		return out.toString();		
+
+		return out.toString();
 	}
 
 	private String removeLoggerInContext(String context) {
 		int endContextStartTagIndex = context.indexOf(">");
 		int startIndex = context.indexOf("<Logger", endContextStartTagIndex);
 		if(context.charAt(startIndex-1) == '\t') startIndex--;
-		if(context.charAt(startIndex-1) == '\n') startIndex--;			
+		if(context.charAt(startIndex-1) == '\n') startIndex--;
 		int endIndex = context.indexOf("/>",startIndex)+1;
 		StringBuffer out = new StringBuffer(context.substring(0, startIndex));
 		out.append(context.substring(endIndex+1, context.length()));
-		
-		return out.toString();	
+
+		return out.toString();
 	}
 
 
 	private String addExtraInfoToContext(String context) {
 		context = this.formatContextEndTag(context);
-		int endContextStartTagIndex = context.indexOf(">");		
+		int endContextStartTagIndex = context.indexOf(">");
 		int extraInfoIndex = endContextStartTagIndex + 1;
 		StringBuffer out = new StringBuffer(context.substring(0, extraInfoIndex));
-		out.append('\n');	
+		out.append('\n');
 		out.append(extraBeginTag);
 		out.append('\n');
 		out.append(getExtraInfo());
 		out.append('\n');
-		out.append(extraEndTag);						
-		out.append(context.substring(extraInfoIndex, context.length()));				
-		
-		return out.toString();			
+		out.append(extraEndTag);
+		out.append(context.substring(extraInfoIndex, context.length()));
+
+		return out.toString();
 	}
 
 	private String updateExtraInfoInContext(String context) {
 		int endContextStartTagIndex = context.indexOf(">");
 		int startIndex = context.indexOf(extraBeginTag, endContextStartTagIndex);
 		if(context.charAt(startIndex-1) == '\t') startIndex--;
-		if(context.charAt(startIndex-1) == '\n') startIndex--;			
+		if(context.charAt(startIndex-1) == '\n') startIndex--;
 		int extraEndTagStartIndex = context.indexOf(extraEndTag,startIndex);
 		StringBuffer out = new StringBuffer(context.substring(0, startIndex));
-		out.append('\n');		
+		out.append('\n');
 		out.append(extraBeginTag);
 		out.append('\n');
 		out.append(getExtraInfo());
 		out.append('\n');
 		out.append(context.substring(extraEndTagStartIndex, context.length()));
-		
-		return out.toString();		
+
+		return out.toString();
 	}
 
 	private String removeExtraInfoInContext(String context) {
 		int endContextStartTagIndex = context.indexOf(">");
 		int startIndex = context.indexOf(extraBeginTag, endContextStartTagIndex);
 		if(context.charAt(startIndex-1) == '\t') startIndex--;
-		if(context.charAt(startIndex-1) == '\n') startIndex--;			
+		if(context.charAt(startIndex-1) == '\n') startIndex--;
 		int extraEndTagStartIndex = context.indexOf(extraEndTag,startIndex);
 		StringBuffer out = new StringBuffer(context.substring(0, startIndex));
 		int endIndex = extraEndTagStartIndex + extraEndTag.length();
 		out.append(context.substring(endIndex, context.length()));
-		
-		return out.toString();	
+
+		return out.toString();
 	}
-	
+
 	private String getContextStartTag() {
 		return ("<Context");
 	}
-	
+
 	private String getContextPath() {
-		return ("path=" + '"' + getWebPath() + '"');	
+		return ("path=" + '"' + getWebPath() + '"');
 	}
-	
+
 	private String getContextDocBase() {
 		String docBaseLocation = "";
 		if(getRootDirFolder() == null) {
@@ -1158,18 +1158,18 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 		} else {
 			docBaseLocation = this.getRootDirFolder().getLocation().toOSString();
 		}
-		return ("docBase=" + '"' + docBaseLocation + '"');	
+		return ("docBase=" + '"' + docBaseLocation + '"');
 	}
-	
+
 	private String getContextWorkDir() {
 		String workFolderLocation = this.getWorkFolder().getLocation().toOSString();
 		return (TomcatLauncherPlugin.getDefault().getTomcatBootstrap().getContextWorkDir(workFolderLocation));
 	}
-	
+
 	private String getContextWebAppClassLoader() {
 		return "\n\t<Loader className=\"org.apache.catalina.loader.DevLoader\" reloadable=\"true\" debug=\"1\" useSystemClassLoaderAsParent=\"false\" />";
 	}
-	
+
 	private String getContextLogger() {
 		return "\n\t<Logger className=\"org.apache.catalina.logger.SystemOutLogger\" verbosity=\"4\" timestamp=\"true\"/>";
 	}
@@ -1177,20 +1177,20 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 
 	private String getContextEndTag() {
 		return "</Context>";
-		
+
 	}
 
 	public void exportToWar() throws IOException {
 
 		File warFile = new File(this.getWarLocation());
-		
+
 		File directory = null;
 	 	if(getRootDirFolder() == null) {
 		 	directory = this.getProject().getLocation().toFile();
-	 	} else {	 		
+	 	} else {
 		 	directory = this.getRootDirFolder().getLocation().toFile();
 	 	}
-	 					
+
 		Zipper zipper = new TomcatProjectZipper(warFile, directory, getExportSource());
 		zipper.zip();
 	}
@@ -1199,18 +1199,18 @@ public class TomcatProject extends PlatformObject implements IProjectNature  {
 	 * if WEB-INF classes contains Java files add it to source folders
 	 * Otherwise Eclipse will delete all those files
 	 */
-	private boolean classesContainsJavaFiles() {		
-		IFolder webinfFolder = this.getWebInfFolder();	
+	private boolean classesContainsJavaFiles() {
+		IFolder webinfFolder = this.getWebInfFolder();
 		IFolder classesFolder = webinfFolder.getFolder("classes");
 		File f = classesFolder.getLocation().toFile();
-				 
-    	if (!f.exists()) return false; 
-    	if (!f.isDirectory()) return false; 
-    
+
+    	if (!f.exists()) return false;
+    	if (!f.isDirectory()) return false;
+
     	return FileUtil.dirContainsFiles(f, "java", true);
-	}  
-	
-	
+	}
+
+
 	/*
 	 * A new Tomcat project should be checked by default in source path preference page
 	 */

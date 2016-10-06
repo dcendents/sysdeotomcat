@@ -37,7 +37,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-
+import org.osgi.framework.BundleActivator;
 
 import com.sysdeo.eclipse.tomcat.editors.ProjectListElement;
 
@@ -45,13 +45,13 @@ import com.sysdeo.eclipse.tomcat.editors.ProjectListElement;
 /**
  * The main plugin class to be used in the desktop.
  */
-public class TomcatLauncherPlugin extends AbstractUIPlugin {
+public class TomcatLauncherPlugin extends AbstractUIPlugin implements BundleActivator {
 
-	public static final String PLUGIN_ID = "com.sysdeo.eclipse.tomcat" ; 
-	public static final String NATURE_ID = PLUGIN_ID + ".tomcatnature" ; 
+	public static final String PLUGIN_ID = "com.sysdeo.eclipse.tomcat" ;
+	public static final String NATURE_ID = PLUGIN_ID + ".tomcatnature" ;
 
 	static final String TOMCAT_PREF_HOME_KEY = "tomcatDir";
-	static final String TOMCAT_PREF_BASE_KEY = "tomcatBase";	
+	static final String TOMCAT_PREF_BASE_KEY = "tomcatBase";
 	static final String TOMCAT_PREF_CONFIGFILE_KEY = "tomcatConfigFile";
 	static final String TOMCAT_PREF_VERSION_KEY = "tomcatVersion";
 	static final String TOMCAT_PREF_JRE_KEY = "tomcatJRE";
@@ -66,18 +66,18 @@ public class TomcatLauncherPlugin extends AbstractUIPlugin {
 	static final String TOMCAT_PREF_SECURITYMANAGER = "enabledSecurityManager";
 	static final String TOMCAT_PREF_MANAGER_URL = "managerUrl";
 	static final String TOMCAT_PREF_MANAGER_USER = "managerUser";
-	static final String TOMCAT_PREF_MANAGER_PASSWORD = "managerPassword";		
+	static final String TOMCAT_PREF_MANAGER_PASSWORD = "managerPassword";
 	static final String TOMCAT_VERSION3 = "tomcatV3";
 	static final String TOMCAT_VERSION4 = "tomcatV4";
 	static final String TOMCAT_VERSION41 = "tomcatV41";
 	static final String TOMCAT_VERSION5 = "tomcatV5";
 	static final String TOMCAT_VERSION6 = "tomcatV6";
 	static final String TOMCAT_VERSION7 = "tomcatV7";
-	static final String TOMCAT_PREF_CONFMODE_KEY = "configMode";		
+	static final String TOMCAT_PREF_CONFMODE_KEY = "configMode";
 	static final String SERVERXML_MODE = "serverFile";
 	static final String CONTEXTFILES_MODE = "contextFiles";
 	static final String TOMCAT_PREF_CONTEXTSDIR_KEY = "contextsDir";
-				
+
 	private static final String TOMCAT_HOME_CLASSPATH_VARIABLE = "TOMCAT_HOME";
 
 
@@ -85,19 +85,18 @@ public class TomcatLauncherPlugin extends AbstractUIPlugin {
 	private static TomcatLauncherPlugin plugin;
 	//Resource bundle.
 	private ResourceBundle resourceBundle;
-	
+
 	/**
 	 * The constructor.
 	 */
-	public TomcatLauncherPlugin(IPluginDescriptor descriptor) {
-		super(descriptor);
+	public TomcatLauncherPlugin() {
 		plugin = this;
 		try {
 			resourceBundle= PropertyResourceBundle.getBundle("resources");
 		} catch (MissingResourceException x) {
 			resourceBundle = null;
 		}
-		
+
 		this.getWorkspace().addResourceChangeListener(new TomcatProjectChangeListener(), IResourceChangeEvent.PRE_DELETE);
 	}
 
@@ -110,7 +109,7 @@ public class TomcatLauncherPlugin extends AbstractUIPlugin {
 			this.getPreferenceStore().setValue("fixTomcatHomeBug", "fixed");
 			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 			IProject[] projects = root.getProjects();
-			
+
 			try {
 				for (int i = 0; i < projects.length; i++) {
 					if(projects[i].hasNature(NATURE_ID)) {
@@ -146,7 +145,7 @@ public class TomcatLauncherPlugin extends AbstractUIPlugin {
 	public static IWorkspace getWorkspace() {
 		return ResourcesPlugin.getWorkspace();
 	}
-	
+
 	/**
 	 * Returns the active shell for this plugin.
 	 */
@@ -199,30 +198,30 @@ public class TomcatLauncherPlugin extends AbstractUIPlugin {
 		IPreferenceStore pref =	TomcatLauncherPlugin.getDefault().getPreferenceStore();
 		return pref.getString(TOMCAT_PREF_CONFMODE_KEY);
 	}
-	
+
 	public String getContextsDir() {
 		IPreferenceStore pref =	TomcatLauncherPlugin.getDefault().getPreferenceStore();
 		return pref.getString(TOMCAT_PREF_CONTEXTSDIR_KEY);
 	}
-		
+
 	public String getTomcatVersion() {
 		IPreferenceStore pref =	TomcatLauncherPlugin.getDefault().getPreferenceStore();
 		String result = pref.getString(TOMCAT_PREF_VERSION_KEY);
-		if (result.equals("")) 
+		if (result.equals(""))
 			result = TOMCAT_VERSION4;
-			
+
 		return result;
 	}
 
 	public String getTomcatJRE() {
 		IPreferenceStore pref =	TomcatLauncherPlugin.getDefault().getPreferenceStore();
 		String result = pref.getString(TOMCAT_PREF_JRE_KEY);
-		if (result.equals("")) 
+		if (result.equals(""))
 			result = JavaRuntime.getDefaultVMInstall().getId();
-			
+
 		return result;
 	}
-	
+
 	public boolean isDebugMode() {
 		IPreferenceStore pref =	TomcatLauncherPlugin.getDefault().getPreferenceStore();
 		return !pref.getBoolean(TOMCAT_PREF_DEBUGMODE_KEY);
@@ -237,48 +236,48 @@ public class TomcatLauncherPlugin extends AbstractUIPlugin {
 		IPreferenceStore pref =	TomcatLauncherPlugin.getDefault().getPreferenceStore();
 		return pref.getBoolean(TOMCAT_PREF_SECURITYMANAGER);
 	}
-	
+
 	public String getJvmParamaters() {
 		IPreferenceStore pref =	TomcatLauncherPlugin.getDefault().getPreferenceStore();
-		return pref.getString(TOMCAT_PREF_JVM_PARAMETERS_KEY);		
+		return pref.getString(TOMCAT_PREF_JVM_PARAMETERS_KEY);
 	}
 
 	public String getJvmClasspath() {
 		IPreferenceStore pref =	TomcatLauncherPlugin.getDefault().getPreferenceStore();
-		return pref.getString(TOMCAT_PREF_JVM_CLASSPATH_KEY);		
+		return pref.getString(TOMCAT_PREF_JVM_CLASSPATH_KEY);
 	}
 
 	public String getJvmBootClasspath() {
 		IPreferenceStore pref =	TomcatLauncherPlugin.getDefault().getPreferenceStore();
-		return pref.getString(TOMCAT_PREF_JVM_BOOTCLASSPATH_KEY);		
+		return pref.getString(TOMCAT_PREF_JVM_BOOTCLASSPATH_KEY);
 	}
-			
+
 	public TomcatBootstrap getTomcatBootstrap() {
 		TomcatBootstrap tomcatBootsrap = null;
-		
+
 		if(getTomcatVersion().equals(TOMCAT_VERSION3)) {
 			tomcatBootsrap = new Tomcat3Bootstrap();
 		}
 		if(getTomcatVersion().equals(TOMCAT_VERSION4)) {
-			tomcatBootsrap = new Tomcat4Bootstrap();				
+			tomcatBootsrap = new Tomcat4Bootstrap();
 		}
 		if(getTomcatVersion().equals(TOMCAT_VERSION41)) {
-			tomcatBootsrap = new Tomcat41Bootstrap();				
-		}		
+			tomcatBootsrap = new Tomcat41Bootstrap();
+		}
 		if(getTomcatVersion().equals(TOMCAT_VERSION5)) {
-			tomcatBootsrap = new Tomcat5Bootstrap();				
+			tomcatBootsrap = new Tomcat5Bootstrap();
 		}
 		if(getTomcatVersion().equals(TOMCAT_VERSION6)) {
-			tomcatBootsrap = new Tomcat6Bootstrap();				
+			tomcatBootsrap = new Tomcat6Bootstrap();
 		}
 		if(getTomcatVersion().equals(TOMCAT_VERSION7)) {
-			tomcatBootsrap = new Tomcat7Bootstrap();				
-		}		
-				
+			tomcatBootsrap = new Tomcat7Bootstrap();
+		}
+
 		return tomcatBootsrap;
 	}
 
-		
+
 	public String getManagerAppUrl() {
 		IPreferenceStore pref =	TomcatLauncherPlugin.getDefault().getPreferenceStore();
 		return pref.getString(TOMCAT_PREF_MANAGER_URL);
@@ -288,7 +287,7 @@ public class TomcatLauncherPlugin extends AbstractUIPlugin {
 		IPreferenceStore pref =	TomcatLauncherPlugin.getDefault().getPreferenceStore();
 		return pref.getString(TOMCAT_PREF_MANAGER_USER);
 	}
-	
+
 	public String getManagerAppPassword() {
 		IPreferenceStore pref =	TomcatLauncherPlugin.getDefault().getPreferenceStore();
 		return pref.getString(TOMCAT_PREF_MANAGER_PASSWORD);
@@ -296,30 +295,30 @@ public class TomcatLauncherPlugin extends AbstractUIPlugin {
 
 	static public void log(String msg) {
 		ILog log = TomcatLauncherPlugin.getDefault().getLog();
-		Status status = new Status(IStatus.ERROR, TomcatLauncherPlugin.getDefault().getDescriptor().getUniqueIdentifier(), IStatus.ERROR, msg + "\n", null);
+		Status status = new Status(IStatus.ERROR, TomcatLauncherPlugin.getDefault().getBundle().getSymbolicName(), IStatus.ERROR, msg + "\n", null);
 		log.log(status);
 	}
-	
+
 	static public void log(Exception ex) {
 		ILog log = TomcatLauncherPlugin.getDefault().getLog();
 		StringWriter stringWriter = new StringWriter();
 	    ex.printStackTrace(new PrintWriter(stringWriter));
 		String msg = stringWriter.getBuffer().toString();
 
-		Status status = new Status(IStatus.ERROR, TomcatLauncherPlugin.getDefault().getDescriptor().getUniqueIdentifier(), IStatus.ERROR, msg, null);
+		Status status = new Status(IStatus.ERROR, TomcatLauncherPlugin.getDefault().getBundle().getSymbolicName(), IStatus.ERROR, msg, null);
 		log.log(status);
 	}
 
-	
+
 	public IPath getTomcatIPath() {
 		IPath tomcatPath = getTomcatClasspathVariable();
 		if(tomcatPath == null) {
 			return new Path(TomcatLauncherPlugin.getDefault().getTomcatDir());
 		} else {
 			return new Path(TOMCAT_HOME_CLASSPATH_VARIABLE);
-		}	
+		}
 	}
-	
+
 	private IPath getTomcatClasspathVariable() {
 		IPath tomcatPath = JavaCore.getClasspathVariable(TOMCAT_HOME_CLASSPATH_VARIABLE);
 		if(tomcatPath == null) {
@@ -334,22 +333,22 @@ public class TomcatLauncherPlugin extends AbstractUIPlugin {
 			JavaCore.setClasspathVariable(
 				TOMCAT_HOME_CLASSPATH_VARIABLE,
 				new Path(TomcatLauncherPlugin.getDefault().getTomcatDir()),
-				null);		
+				null);
 		} catch (JavaModelException e) {
 			log(e);
-		}		
+		}
 	}
-	
-	
+
+
 
 	public void setProjectsInCP(List projectsInCP) {
 		this.saveProjectsToPreferenceStore(projectsInCP, TOMCAT_PREF_PROJECTSINCP_KEY);
 	}
 
 	public List getProjectsInCP() {
-		return this.readProjectsFromPreferenceStore(TOMCAT_PREF_PROJECTSINCP_KEY);	
-	}	
-	
+		return this.readProjectsFromPreferenceStore(TOMCAT_PREF_PROJECTSINCP_KEY);
+	}
+
 	public void setProjectsInSourcePath(List projectsInCP) {
 		this.saveProjectsToPreferenceStore(projectsInCP, TOMCAT_PREF_PROJECTSINSOURCEPATH_KEY);
 	}
@@ -358,14 +357,14 @@ public class TomcatLauncherPlugin extends AbstractUIPlugin {
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IProject[] allProjects = root.getProjects();
 		ArrayList tempList = new ArrayList(allProjects.length);
-		
+
 		IPreferenceStore pref =	TomcatLauncherPlugin.getDefault().getPreferenceStore();
 		boolean automaticallyComputed =  pref.getBoolean(TOMCAT_PREF_COMPUTESOURCEPATH_KEY);
-		
+
 		if(automaticallyComputed) {
 			return computeProjectsInSourcePath();
 		} else {
-			return readProjectsInSourcePathFromPref();		
+			return readProjectsInSourcePathFromPref();
 		}
 	}
 
@@ -375,21 +374,21 @@ public class TomcatLauncherPlugin extends AbstractUIPlugin {
 			// Compute source path for a new workspace
 			pref.setValue(TOMCAT_PREF_COMPUTESOURCEPATH_KEY, true);
 			return computeProjectsInSourcePath();
-		} else {	
+		} else {
 			return TomcatLauncherPlugin.readProjectsFromPreferenceStore(TOMCAT_PREF_PROJECTSINSOURCEPATH_KEY);
 		}
 	}
-	
+
 	private List computeProjectsInSourcePath() {
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IProject[] allProjects = root.getProjects();
 
 		// Since version 3.2 final, default source path contains all opened Java projects
-		// Previously we add Tomcat projects and their required Java projects to source path 
+		// Previously we add Tomcat projects and their required Java projects to source path
 		// For beginner this should make thing easier.
-		
+
 		ArrayList tempList = new ArrayList(allProjects.length);
-		
+
 		ArrayList alreadyAdded = new ArrayList();
 
 		for (int i = 0; i < allProjects.length; i++) {
@@ -402,10 +401,10 @@ public class TomcatLauncherPlugin extends AbstractUIPlugin {
 						tempList.add(new ProjectListElement(javaProject.getProject()));
 						alreadyAdded.add(project);
 					}
-					
-					
+
+
 //					String[] reqProjects = javaProject.getRequiredProjectNames();
-//					
+//
 //					for (int j = 0; j < allProjects.length; j++)
 //					{
 //						for (int k = 0; k < reqProjects.length; k++)
@@ -422,20 +421,20 @@ public class TomcatLauncherPlugin extends AbstractUIPlugin {
 //							}
 //						}
 //					}
-					
+
 				}
 			} catch (CoreException e) {
 				TomcatLauncherPlugin.log(e);
 			}
 		}
 		return tempList;
-	
+
 	}
-	
+
 //	private void initProjectsInSourcePath() {
 //		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 //		IProject[] allProjects = root.getProjects();
-//		
+//
 //		ArrayList tempList = new ArrayList(allProjects.length);
 //		for (int i = 0; i < allProjects.length; i++) {
 //			try {
@@ -446,9 +445,9 @@ public class TomcatLauncherPlugin extends AbstractUIPlugin {
 //				TomcatLauncherPlugin.getDefault().log(e);
 //			}
 //		}
-//		this.setProjectsInSourcePath(tempList);		
+//		this.setProjectsInSourcePath(tempList);
 //	}
-	
+
 	static void saveProjectsToPreferenceStore(List projectList, String keyInPreferenceStore) {
 		IPreferenceStore pref =	TomcatLauncherPlugin.getDefault().getPreferenceStore();
 		StringBuffer buf = new StringBuffer();
@@ -456,7 +455,7 @@ public class TomcatLauncherPlugin extends AbstractUIPlugin {
 		while(it.hasNext()) {
 			ProjectListElement each = (ProjectListElement)it.next();
 			buf.append(each.getID());
-			buf.append(';');	
+			buf.append(';');
 		}
 		pref.setValue(keyInPreferenceStore, buf.toString());
 	}
@@ -465,16 +464,16 @@ public class TomcatLauncherPlugin extends AbstractUIPlugin {
 		IPreferenceStore pref =	TomcatLauncherPlugin.getDefault().getPreferenceStore();
 		String stringList =  pref.getString(keyInPreferenceStore);
 
-		List projectsIdList = new ArrayList();	
+		List projectsIdList = new ArrayList();
 		StringTokenizer tokenizer = new StringTokenizer(stringList, ";");
 		while (tokenizer.hasMoreElements()) {
 			projectsIdList.add(tokenizer.nextToken());
 		}
-		
+
 		return ProjectListElement.stringsToProjectsList(projectsIdList);
-		
+
 	}
-	
+
 	static public boolean checkTomcatSettingsAndWarn() {
 		if(!isTomcatConfigured()) {
 			String msg = TomcatLauncherPlugin.getResourceString("msg.noconfiguration");
@@ -482,13 +481,13 @@ public class TomcatLauncherPlugin extends AbstractUIPlugin {
 			return false;
 		}
 		return true;
-	}	
-	
+	}
+
 	static public boolean isTomcatConfigured() {
 		return !(TomcatLauncherPlugin.getDefault().getTomcatDir().equals(""));
 	}
-	
-		
+
+
 	public void startup() throws CoreException {
 		super.startup();
 		this.fixTomcatHomeBug();
@@ -499,7 +498,7 @@ public class TomcatLauncherPlugin extends AbstractUIPlugin {
 //	 * @see org.eclipse.core.runtime.Plugin#initializeDefaultPluginPreferences()
 //	 */
 //	protected void initializeDefaultPluginPreferences() {
-//		getPreferenceStore().setDefault(TomcatLauncherPlugin.TOMCAT_PREF_CONFMODE_KEY, TomcatLauncherPlugin.SERVERXML_MODE);		
+//		getPreferenceStore().setDefault(TomcatLauncherPlugin.TOMCAT_PREF_CONFMODE_KEY, TomcatLauncherPlugin.SERVERXML_MODE);
 //		super.initializeDefaultPluginPreferences();
 //	}
 

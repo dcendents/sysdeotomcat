@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tomcat Plugin
+Bundle-SymbolicName: com.sysdeo.eclipse.tomcat; singleton:=true
+Bundle-Version: 3.3.0.5
+Bundle-ClassPath: tomcat.jar
+Bundle-Activator: com.sysdeo.eclipse.tomcat.TomcatLauncherPlugin
+Bundle-Vendor: EclipseTotale.com
+Bundle-Localization: plugin
+Export-Package: .,
+ com.sysdeo.eclipse.tomcat,
+ com.sysdeo.eclipse.tomcat.actions,
+ com.sysdeo.eclipse.tomcat.editors
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.ui.ide;resolution:=optional,
+ org.eclipse.jdt.core,
+ org.eclipse.jdt.launching,
+ org.eclipse.jdt.ui,
+ org.eclipse.debug.ui,
+ org.eclipse.jdt.debug.ui,
+ org.eclipse.ui.ide;resolution:=optional,
+ org.eclipse.core.runtime;bundle-version="2.1"
+Eclipse-LazyStart: true
+Plugin-Class: com.sysdeo.eclipse.tomcat.TomcatLauncherPlugin

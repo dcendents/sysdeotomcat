@@ -1,35 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<plugin
-   id="com.sysdeo.eclipse.tomcat"
-   name="Tomcat Plugin"
-   version="3.3.0.4"
-   provider-name="EclipseTotale.com"
-   class="com.sysdeo.eclipse.tomcat.TomcatLauncherPlugin">
+<plugin>
 
-   <runtime>
-      <library name="tomcat.jar">
-         <export name="*"/>
-      </library>
-   </runtime>
-   <requires>
-      <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="org.eclipse.core.resources"/>
-      <import plugin="org.eclipse.ui"/>
-      <import plugin="org.eclipse.debug.core"/>
-      <import plugin="org.eclipse.swt"/>
-      <import plugin="org.eclipse.jdt.core"/>
-      <import plugin="org.eclipse.jdt.launching"/>
-      <import plugin="org.eclipse.jdt.debug"/>
-      <import plugin="org.eclipse.jdt.ui"/>
-      <import plugin="org.eclipse.debug.ui"/>
-      <import plugin="org.eclipse.jdt.debug.ui"/>
-      <import plugin="org.eclipse.core.runtime.compatibility" optional="true"/>
-      <import plugin="org.eclipse.ui.ide" optional="true"/>
-      <import plugin="org.eclipse.ui.views" optional="true"/>
-   </requires>
-
-
-   <extension
+     <extension
          point="org.eclipse.ui.actionSets">
       <actionSet
             label="Tomcat"

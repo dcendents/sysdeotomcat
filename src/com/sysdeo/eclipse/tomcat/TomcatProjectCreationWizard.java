@@ -54,12 +54,7 @@ public class TomcatProjectCreationWizard extends NewElementWizard implements IEx
 	}
 
 	private ImageDescriptor getBannerImg() {
-		try {
-			URL prefix = new URL(TomcatLauncherPlugin.getDefault().getDescriptor().getInstallURL(), "icons/");
-			return ImageDescriptor.createFromURL(new URL(prefix, "newjprj_wiz.gif"));
-		} catch (MalformedURLException e) {
-			return null;
-		}
+		return ImageDescriptor.createFromURL(TomcatLauncherPlugin.getDefault().getBundle().getResource("icons/newjprj_wiz.gif"));
 	}
 
 	/*
